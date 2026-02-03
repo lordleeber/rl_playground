@@ -1,0 +1,11 @@
+# 1. 懶人包：如果你只用 PyTorch (最推薦)
+# 如果你主要是寫 Python 跑模型，你根本不需要去官網下載幾 GB 的 CUDA Toolkit。
+# 做法： 只需要安裝最新的 NVIDIA 驅動程式，然後直接用 pip 安裝 PyTorch。
+# 版本： PyTorch 2.10 的安裝包內已經「自帶」了適配的 CUDA Runtime 和 cuDNN。
+# 指令：
+# pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+# 這會幫你搞定一切，不會弄髒你的系統環境變數。
+
+# 專案依賴套件
+matplotlib
+gymnasium[classic_control]
