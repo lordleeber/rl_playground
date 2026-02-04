@@ -30,13 +30,20 @@ def visualize():
 
     # 載入模型
     policy_net = DQN(n_observations, n_actions).to(device)
+    model_path = "cartpole_model_best.pth"
     try:
-        policy_net.load_state_dict(torch.load("cartpole_model.pth"))
-        policy_net.eval() # 設定為評估模式
-        print("成功載入模型！")
+        policy_net.load_state_dict(torch.load(model_path))
+        policy_net.eval() 
+        print(f"成功載入最優模型：{model_path}")
     except FileNotFoundError:
-        print("找不到模型檔案 'cartpole_model.pth'，請先執行 dqn_cartpole.py 進行訓練。")
-        return
+        print(f"找不到 {model_path}，嘗試載入 cartpole_model_final.pth...")
+        try:
+            policy_net.load_state_dict(torch.load("cartpole_model_final.pth"))
+            policy_net.eval()
+            print("成功載入最終模型。")
+        except FileNotFoundError:
+            print("找不到模型檔案，請先執行訓練。")
+            return
 
     num_episodes = 5 # 觀看幾場
     

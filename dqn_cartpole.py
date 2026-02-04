@@ -134,10 +134,11 @@ def optimize_model():
     optimizer.step()
 
 # --- 主訓練迴圈 ---
-num_episodes = 200 # 訓練回合數 (可自行調整)
+num_episodes = 600 # 訓練回合數
 print("開始訓練...")
 
 episode_durations = []
+best_avg_duration = 0  # 紀錄史上最高平均分數
 
 for i_episode in range(num_episodes):
     state, info = env.reset()
@@ -157,14 +158,12 @@ for i_episode in range(num_episodes):
 
         # 儲存經驗
         memory.push(state, action, next_state, reward)
-
-        # 移動到下一個狀態
         state = next_state
 
         # 執行一步優化
         optimize_model()
 
-        # 軟更新目標網路 (Soft update)
+        # 軟更新目標網路
         target_net_state_dict = target_net.state_dict()
         policy_net_state_dict = policy_net.state_dict()
         for key in policy_net_state_dict:
@@ -173,16 +172,48 @@ for i_episode in range(num_episodes):
 
         if done:
             episode_durations.append(t + 1)
+            
+            # 計算最近 100 回合的平均值
+            if len(episode_durations) >= 100:
+                current_avg = sum(episode_durations[-100:]) / 100
+            else:
+                current_avg = sum(episode_durations) / len(episode_durations)
+
+            # 如果平均表現創新高，就儲存模型
+            if current_avg > best_avg_duration:
+                best_avg_duration = current_avg
+                torch.save(policy_net.state_dict(), "cartpole_model_best.pth")
+                # print(f"New best average: {best_avg_duration:.2f} - Model saved!")
+
             if (i_episode + 1) % 10 == 0:
-                print(f"Episode {i_episode + 1}/{num_episodes} finished after {t+1} steps")
+                print(f"Episode {i_episode + 1}/{num_episodes} | Current Avg: {current_avg:.1f} | Best Avg: {best_avg_duration:.1f}")
             break
 
 print("訓練完成！")
 env.close()
 
-# 儲存模型
-torch.save(policy_net.state_dict(), "cartpole_model.pth")
-print("模型已儲存至 cartpole_model.pth")
+# 儲存最終模型 (目前的版本)
+torch.save(policy_net.state_dict(), "cartpole_model_final.pth")
+print(f"史上最高平均分數: {best_avg_duration:.2f}")
+print("最優模型已儲存至 cartpole_model_best.pth")
+print("最終模型已儲存至 cartpole_model_final.pth")
+
+# 繪製並儲存訓練結果圖表
+plt.figure(figsize=(10, 5))
+plt.title("Training Result")
+plt.xlabel("Episode")
+plt.ylabel("Duration (Steps)")
+plt.plot(episode_durations, label='Episode Duration')
+
+# 繪製 100 回合的移動平均線 (更能看出趨勢)
+if len(episode_durations) >= 100:
+    means = torch.tensor(episode_durations, dtype=torch.float).unfold(0, 100, 1).mean(1).view(-1)
+    means = torch.cat((torch.zeros(99), means))
+    plt.plot(means.numpy(), label='100-episode Moving Average')
+
+plt.legend()
+plt.savefig("training_result.png")
+print("訓練結果圖表已儲存至 training_result.png")
 
 # 簡單的視覺化結果 (文字版)
 print(f"平均生存步數 (最後 10 回合): {sum(episode_durations[-10:])/10:.1f}")
