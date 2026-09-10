@@ -29,12 +29,10 @@ if not Path("chase_2d/chase_2d.py").exists():
     print("請在 repo 根目錄執行", file=sys.stderr)
     sys.exit(2)
 
-# 教材裡刻意改寫過的部分：比對時兩邊都套用同樣的正規化
-NORMALIZE = [
-    (re.compile(r"^(Q 表已存成|學習曲線已存成) .*/(rl_playground/.*)$"), r"\1 <path>/\2"),
-    (re.compile(r"^&lt;你的路徑&gt;.*$"), ""),
-]
 MARK = re.compile(r"\s*<span class=\"mark\">.*?</span>\s*$")
+# 教材把絕對路徑寫成 <你的路徑>/rl_playground/...，實際輸出是完整絕對路徑。
+# 比對前兩邊都收斂成 <path>/rl_playground/...
+ABS_PATH = re.compile(r"^(Q 表已存成|學習曲線已存成) .*?(/rl_playground/.*)$")
 
 
 def clean(block, strip_marks):
@@ -43,8 +41,7 @@ def clean(block, strip_marks):
         if strip_marks:
             line = MARK.sub("", line)
         line = html.unescape(re.sub(r"<[^>]+>", "", line)).rstrip()
-        line = re.sub(r"^(Q 表已存成|學習曲線已存成) .*?(/rl_playground/.*)$", r"\1 <path>\2", line)
-        line = re.sub(r"^(Q 表已存成|學習曲線已存成) <你的路徑>(/rl_playground/.*)$", r"\1 <path>\2", line)
+        line = ABS_PATH.sub(r"\1 <path>\2", line)
         out.append(line)
     while out and not out[0].strip():
         out.pop(0)
@@ -87,16 +84,27 @@ for page in sorted(DOCS.glob("*.html")):
             print(f"  {i}. 跳過（clone / venv 建置）")
             skipped += 1
             continue
+        first = next((l for l in cmd.splitlines() if l.strip()), "")
+        if not first:
+            failed = True
+            print(f"  {i}. 這是個空的指令區塊")
+            continue
         if out_raw is None:
             failed = True
-            print(f"  {i}. 這個指令區塊後面沒有緊接輸出區塊，無法驗證: {cmd.splitlines()[0][:50]}")
+            print(f"  {i}. 這個指令區塊後面沒有緊接輸出區塊，無法驗證: {first[:50]}")
             continue
         proc = subprocess.run(["bash", "-c", cmd], capture_output=True, text=True, env=env)
-        actual = [l for l in clean(proc.stdout, False)
-                  if "FigureCanvasAgg" not in l and not l.strip().startswith("plt.")]
+        actual = clean(proc.stdout, False)
         expected = clean(out_raw, True)
         checked += 1
-        if actual == expected:
+        # 結束碼非 0 一律算失敗，就算 stdout 剛好對得上 ——
+        # 印到一半才炸掉的指令，教材不該說它跑得起來。
+        if proc.returncode != 0:
+            failed = True
+            print(f"  {i}. 指令以結束碼 {proc.returncode} 失敗: {first[:50]}")
+            for line in proc.stderr.strip().splitlines()[-8:]:
+                print(f"       stderr: {line}")
+        elif actual == expected:
             print(f"  {i}. OK（{len(expected)} 行）")
         else:
             failed = True
@@ -107,6 +115,8 @@ for page in sorted(DOCS.glob("*.html")):
                     print(f"       行 {n+1} 實際: {a!r}")
             if len(expected) != len(actual):
                 print(f"       行數 教材 {len(expected)} vs 實際 {len(actual)}")
+            for line in proc.stderr.strip().splitlines()[-8:]:
+                print(f"       stderr: {line}")
 
 print(f"\n驗證 {checked} 組，跳過 {skipped} 組：", "有對不上的，見上方" if failed else "全部相符")
 sys.exit(1 if failed else 0)

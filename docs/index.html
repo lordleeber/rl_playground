@@ -100,7 +100,7 @@ pip install -r requirements.txt</pre>
     <p>
       RL 是什麼、跟監督式學習差在哪；怎麼把連續的座標壓成 40 個狀態；
       Q 表、獎勵設計、ε-greedy 探索，以及那唯一一行的 Q-Learning 更新公式。
-      附三組可重跑的對照實驗，證明每個零件都真的有用。
+      附一個基準加四組可重跑的對照實驗，證明每個零件都真的有用。
     </p>
     <div class="tags">
       <span class="tag">chase_2d/</span>
@@ -126,8 +126,9 @@ pip install -r requirements.txt</pre>
   <li>章裡的終端輸出、數字、圖表<b class="hl-ok">全部實跑實測</b>，沒有「應該長這樣」的示意輸出。</li>
   <li>凡是宣稱「A 比 B 好」，一定附一段<b class="hl-key">你可以自己貼上去跑</b>的對照實驗。</li>
   <li>程式碼節錄允許省略，但留下來的每一行都跟 repo 現碼逐字一致，並標注檔名行號。</li>
-  <li>「指令 → 輸出」的每一對都由 <code>scripts/check_outputs.py</code> 把指令真的跑起來比對，
-      連結與圖表契約由 <code>check_book.py</code> 驗；兩支都在 repo 根目錄執行。</li>
+  <li>「指令 → 輸出」的每一對都由 <code>scripts/check_outputs.py</code> 把指令真的跑起來比對。
+      在 repo 根目錄執行 <code>python scripts/check_outputs.py docs</code> 就會重跑一次。
+      連結、圖號與 SVG 圖表契約另外由產這套教材的工具鏈驗過，<b class="hl-bad">那支腳本不在本 repo 內</b>。</li>
   <li><b class="hl-bad">教材仍然會過期。</b>檢查器只保證它檢查的那一項，不保證它旁邊那一片。
       如果某支程式後來被改過而章節沒跟上，以程式碼為準。</li>
 </ul>

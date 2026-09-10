@@ -160,47 +160,52 @@ def demo(q, seed=123, episodes=3):
     b_dot,      = ax.plot([], [], "*", color="tab:red",  ms=22, label="B (target)")
     ax.legend(loc="upper right")
 
-    for ep in range(episodes):
-        s = env.reset(rng)
-        trail = [env.a.copy()]
+    try:
+        for ep in range(episodes):
+            s = env.reset(rng)
+            trail = [env.a.copy()]
 
-        for step in range(MAX_STEPS):
-            a = int(np.argmax(q[s]))            # 展示時不再探索，全部照 Q 表走
-            s, _, done, _ = env.step(a, rng)
+            for step in range(MAX_STEPS):
+                a = int(np.argmax(q[s]))            # 展示時不再探索，全部照 Q 表走
+                s, _, done, _ = env.step(a, rng)
 
-            trail.append(env.a.copy())
-            trail = trail[-80:]                 # 只留最近 80 步的軌跡
-            xs, ys = zip(*trail)
+                trail.append(env.a.copy())
+                trail = trail[-80:]                 # 只留最近 80 步的軌跡
+                xs, ys = zip(*trail)
 
-            trail_line.set_data(xs, ys)
-            a_dot.set_data([env.a[0]], [env.a[1]])
-            b_dot.set_data([env.b[0]], [env.b[1]])
-            ax.set_title(
-                f"episode {ep + 1}/{episodes}   "
-                f"t = {(step + 1) * DT:5.1f}s / {MAX_STEPS * DT:.0f}s   "
-                f"catches = {env.catches}"
-            )
-            plt.pause(0.001)
+                trail_line.set_data(xs, ys)
+                a_dot.set_data([env.a[0]], [env.a[1]])
+                b_dot.set_data([env.b[0]], [env.b[1]])
+                ax.set_title(
+                    f"episode {ep + 1}/{episodes}   "
+                    f"t = {(step + 1) * DT:5.1f}s / {MAX_STEPS * DT:.0f}s   "
+                    f"catches = {env.catches}"
+                )
+                plt.pause(0.001)
 
-            if not plt.fignum_exists(fig.number):   # 使用者關掉視窗就停
-                return
-            if done:
-                break
+                if not plt.fignum_exists(fig.number):   # 使用者關掉視窗就停
+                    return
+                if done:
+                    break
 
-        print(f"  demo episode {ep + 1}：抓到 {env.catches} 次")
+            print(f"  demo episode {ep + 1}：抓到 {env.catches} 次")
+    finally:
+        plt.ioff()    # 提早 return 也要還原，否則整個互動 session 都停在 interactive mode
 
-    plt.ioff()
     plt.show()
 
 
 def plot_history(history):
     """畫學習曲線，存成 training_result.png。"""
-    window = 50
-    smooth = np.convolve(history, np.ones(window) / window, mode="valid")
+    # 視窗不能比資料長：np.convolve 會把兩個運算元對調，
+    # 於是 10 個回合配 50 的視窗會畫出 41 個點、橫軸落在第 49~89 回合——一條完全虛構的曲線。
+    window = min(50, len(history))
 
     plt.figure(figsize=(8, 4))
     plt.plot(history, alpha=0.25, lw=0.8, label="per episode")
-    plt.plot(np.arange(len(smooth)) + window - 1, smooth, lw=2, label=f"moving avg ({window})")
+    if window >= 2:
+        smooth = np.convolve(history, np.ones(window) / window, mode="valid")
+        plt.plot(np.arange(len(smooth)) + window - 1, smooth, lw=2, label=f"moving avg ({window})")
     plt.xlabel("episode")
     plt.ylabel("catches per episode")
     plt.title("2D chase — Q-learning")
@@ -216,6 +221,10 @@ if __name__ == "__main__":
         if not os.path.exists(Q_TABLE_PATH):
             sys.exit(f"找不到 {Q_TABLE_PATH}，請先執行：python chase_2d/chase_2d.py")
         q = np.load(Q_TABLE_PATH)
+        if q.shape != (N_STATES, N_ACTIONS):
+            sys.exit(f"{Q_TABLE_PATH} 的形狀是 {q.shape}，但目前的設定需要 "
+                     f"{(N_STATES, N_ACTIONS)}。分格參數改過了，請重新訓練："
+                     f"python chase_2d/chase_2d.py")
         print(f"已載入 {Q_TABLE_PATH}")
     else:
         q, history = train()

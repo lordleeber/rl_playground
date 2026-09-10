@@ -174,7 +174,7 @@ pip install -r requirements.txt</pre>
   <tbody>
     <tr><td>要先裝 CUDA / PyTorch</td><td>不用。這一章沒有神經網路，CPU 幾秒就跑完（實測 Apple M4 Pro 上訓練 4.4 秒）。</td></tr>
     <tr><td>要先下載訓練好的模型</td><td>不用，但也<b class="hl-bad">不能跳過訓練</b>。<code>q_table.npy</code> 被 <code>.gitignore</code> 排除，clone 下來不會有，要自己跑一次訓練生出來。</td></tr>
-    <tr><td>要自己開 matplotlib 視窗 / 存圖</td><td>不用，程式跑完會自己開動畫視窗，也會自己把學習曲線存成 <code>training_result.png</code>（<code>chase_2d/chase_2d.py:210</code>）。</td></tr>
+    <tr><td>要自己開 matplotlib 視窗 / 存圖</td><td>不用，程式跑完會自己開動畫視窗，也會自己把學習曲線存成 <code>training_result.png</code>（<code>chase_2d/chase_2d.py:215</code>）。</td></tr>
     <tr><td>要 <code>cd</code> 進 <code>chase_2d/</code> 才跑得動</td><td>不用。產出檔的路徑是用 <code>__file__</code> 算的，從哪個目錄執行都會落在 <code>chase_2d/</code> 裡（<code>chase_2d/chase_2d.py:50-52</code>）。</td></tr>
   </tbody>
 </table>
@@ -764,8 +764,8 @@ PY</pre>
   <tbody>
     <tr><td><code>ChaseEnv</code></td><td>55–104</td><td>世界的規則：位置、移動、獎勵、何時換目標。<b>完全不知道 Q 表的存在。</b></td><td>只依賴常數</td></tr>
     <tr><td><code>train()</code></td><td>107–143</td><td>跑 2000 回合，每一步更新 Q 表，回傳 Q 表與每回合成績。</td><td><code>ChaseEnv</code></td></tr>
-    <tr><td><code>demo()</code></td><td>146–193</td><td>用訓練好的 Q 表跑，即時畫 matplotlib 動畫。<b>不做任何學習。</b></td><td><code>ChaseEnv</code></td></tr>
-    <tr><td><code>plot_history()</code></td><td>196–211</td><td>把成績畫成學習曲線存檔。</td><td>只依賴 matplotlib</td></tr>
+    <tr><td><code>demo()</code></td><td>146–195</td><td>用訓練好的 Q 表跑，即時畫 matplotlib 動畫。<b>不做任何學習。</b></td><td><code>ChaseEnv</code></td></tr>
+    <tr><td><code>plot_history()</code></td><td>198–216</td><td>把成績畫成學習曲線存檔。</td><td>只依賴 matplotlib</td></tr>
   </tbody>
 </table>
 <p>
@@ -809,7 +809,7 @@ Q 表已存成 &lt;你的路徑&gt;/rl_playground/chase_2d/q_table.npy          
   <li><span class="mark">(2)</span> ε 在這裡觸底到 0.05，分數同時衝到 14.5。曲線最陡的一段正好落在 ε 衰減期，說明<b>「邊探索邊學」確實有在發生</b>，不是探索結束才開始學。</li>
   <li><span class="mark">(3)</span> 之後在 15.2 ~ 15.8 之間震盪不再上升，代表<b>收斂了</b>。剩下的抖動來自每回合 A 和 B 的隨機初始位置，不是還沒學好。</li>
   <li><span class="mark">(4)</span> 兩個產出檔都落在 <code>chase_2d/</code> 底下，而不是你執行指令的根目錄——這是 <code>chase_2d.py:50-52</code> 用 <code>__file__</code> 算路徑的效果。</li>
-  <li><span class="mark">(5)</span> demo 階段不再探索（ε 等於 0，見 <code>chase_2d.py:168</code>），分數比訓練期的 15.7 更高，因為少了那 5% 亂走。</li>
+  <li><span class="mark">(5)</span> demo 階段不再探索（ε 等於 0，見 <code>chase_2d.py:169</code>），分數比訓練期的 15.7 更高，因為少了那 5% 亂走。</li>
 </ol>
 
 <div class="note">
@@ -1064,7 +1064,7 @@ PY</pre>
     <dl>
       <dt>症狀</dt><dd><code>python chase_2d/chase_2d.py demo</code> 直接結束，說找不到 <code>q_table.npy</code>。</dd>
       <dt>後果</dt><dd>新讀者第一個動作常常是「先看動畫」，然後以為 repo 壞了。</dd>
-      <dt>正解</dt><dd class="fix"><code>q_table.npy</code> 是訓練產物，被 <code>.gitignore</code> 排除，不進版控。先跑一次不帶參數的訓練即可。程式已經在 <code>chase_2d.py:216-217</code> 給出明確的錯誤訊息而不是 traceback。</dd>
+      <dt>正解</dt><dd class="fix"><code>q_table.npy</code> 是訓練產物，被 <code>.gitignore</code> 排除，不進版控。先跑一次不帶參數的訓練即可。程式已經在 <code>chase_2d.py:221-222</code> 給出明確的錯誤訊息而不是 traceback。</dd>
     </dl>
   </div>
 </div>
