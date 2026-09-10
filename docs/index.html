@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RL Playground — 從零開始的強化學習教材</title>
+<style>
+:root{
+  --bg:#12141a; --panel:#1a1d26; --panel2:#20242f; --ink:#e6e9f0; --muted:#98a0b3;
+  --line:#2c3140; --accent:#e0a350; --ok:#4ec9a5; --bad:#ef6b6b; --agent:#6aa9ff;
+  --shadow:0 1px 0 rgba(255,255,255,.03), 0 8px 24px rgba(0,0,0,.35);
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --panel2:#f0f2f6; --ink:#1a1d26; --muted:#5c6577;
+    --line:#dfe3ea; --accent:#b0700f; --ok:#128063; --bad:#c0392b; --agent:#1f6feb;
+    --shadow:0 1px 2px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.06);
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.85 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Hiragino Sans TC","Microsoft JhengHei",sans-serif;}
+.wrap{max-width:1080px;margin:0 auto;padding:60px 22px 80px}
+a{color:var(--accent)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em;
+  background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+b.hl-ok{color:var(--ok)} b.hl-bad{color:var(--bad)} b.hl-key{color:var(--accent)}
+
+h1{font-size:38px;letter-spacing:-.02em;margin:0 0 14px;line-height:1.25}
+.lead{color:var(--muted);font-size:17px;margin:0 0 10px;max-width:74ch}
+h2{margin:52px 0 18px;font-size:21px}
+h2::before{content:"";display:block;width:38px;height:3px;background:var(--accent);
+  border-radius:2px;margin-bottom:14px}
+p{margin:0 0 16px}
+ul{padding-left:22px} li{margin:6px 0}
+
+pre{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:10px;padding:16px 18px;overflow-x:auto;margin:0 0 18px;
+  font:13px/1.75 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;margin:0 0 20px}
+.card{display:block;text-decoration:none;color:inherit;background:var(--panel);
+  border:1px solid var(--line);border-radius:13px;padding:22px 24px;box-shadow:var(--shadow);
+  transition:border-color .15s, transform .15s}
+.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card .step{font:12px/1 ui-monospace,monospace;letter-spacing:.14em;color:var(--accent);
+  text-transform:uppercase}
+.card h3{margin:11px 0 8px;font-size:19px;line-height:1.4}
+.card p{margin:0 0 14px;color:var(--muted);font-size:14.5px;line-height:1.7}
+.tags{display:flex;gap:7px;flex-wrap:wrap}
+.tag{font:11.5px/1 ui-monospace,monospace;padding:5px 9px;border-radius:5px;
+  background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
+.card.todo{opacity:.55;border-style:dashed;pointer-events:none}
+.card.todo .step{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>RL Playground</h1>
+<p class="lead">
+  一組給<b class="hl-key">完全沒碰過強化學習的軟體工程師</b>的可執行教材。
+  每個 example 是一支跑得動的小程式，配一章從零解釋它的教學頁；
+  程式碼與章節在同一個 PR 裡交付，所以章裡的每個數字都是那份程式碼真的跑出來的。
+</p>
+<p class="lead">
+  不需要 GPU，不需要事先懂機器學習。看得懂 Python 的 for 迴圈和 numpy 陣列就夠了。
+</p>
+
+<h2>這套教材要走到哪</h2>
+<p>
+  路線是<b class="hl-key">從一張查表走到一個神經網路</b>。第 1 章用 40 格的表格解一個追逐問題，
+  把「狀態、動作、獎勵、探索」這幾件事建立起來；接下來每一章拆掉前一章的一個假設——
+  目標會不會逃、看不看得到障礙物、狀態多到表格裝不下之後怎麼辦——
+  直到表格被神經網路取代為止。
+</p>
+<p>
+  <b class="hl-bad">章數還沒有定，因為章是跟著程式碼長出來的。</b>
+  這個 repo 不是先寫好教材再貼程式碼，而是每做完一個 example 就寫一章，
+  所以「下一章」永遠等於「下一個做完的 example」。目前有 1 章。
+</p>
+
+<h2>怎麼開始</h2>
+<p>所有指令都<b class="hl-key">在 repo 根目錄執行</b>（<code>rl_playground/</code> 這一層），全書一致：</p>
+<pre>git clone &lt;this-repo&gt; rl_playground
+cd rl_playground
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt</pre>
+<p>
+  接著挑一章開始。每一章都是自足的單一 HTML 檔，離線也讀得動，
+  對應的程式碼在同名資料夾裡。
+</p>
+
+<h2>章節</h2>
+<div class="cards">
+  <a class="card" href="step1-chase-2d.html">
+    <div class="step">Step 1</div>
+    <h3>用 40 格的表格，學會在 2D 地圖上追人</h3>
+    <p>
+      RL 是什麼、跟監督式學習差在哪；怎麼把連續的座標壓成 40 個狀態；
+      Q 表、獎勵設計、ε-greedy 探索，以及那唯一一行的 Q-Learning 更新公式。
+      附一個基準加四組可重跑的對照實驗，證明每個零件都真的有用。
+    </p>
+    <div class="tags">
+      <span class="tag">chase_2d/</span>
+      <span class="tag">tabular Q-learning</span>
+      <span class="tag">numpy 而已</span>
+      <span class="tag">訓練 4 秒</span>
+    </div>
+  </a>
+  <div class="card todo">
+    <div class="step">Step 2</div>
+    <h3>還沒開始</h3>
+    <p>
+      下一章的題目來自第 1 章的「目前限制」——會動的目標、狀態裡放進牆壁，
+      或是狀態爆炸之後改用神經網路。等程式寫完才會有這一章。
+    </p>
+    <div class="tags"><span class="tag">TBD</span></div>
+  </div>
+</div>
+
+<h2>這份教材的寫法</h2>
+<ul>
+  <li><b class="hl-key">一個 example ＝ 一個 PR ＝ 一章</b>，程式碼和教材同時交付，不事後補寫。</li>
+  <li>章裡的終端輸出、數字、圖表<b class="hl-ok">全部實跑實測</b>，沒有「應該長這樣」的示意輸出。</li>
+  <li>凡是宣稱「A 比 B 好」，一定附一段<b class="hl-key">你可以自己貼上去跑</b>的對照實驗。</li>
+  <li>程式碼節錄允許省略，但留下來的每一行都跟 repo 現碼逐字一致，並標注檔名行號。</li>
+  <li>「指令 → 輸出」的每一對都由 <code>scripts/check_outputs.py</code> 把指令真的跑起來比對。
+      在 repo 根目錄執行 <code>python scripts/check_outputs.py docs</code> 就會重跑一次。
+      連結、圖號與 SVG 圖表契約另外由產這套教材的工具鏈驗過，<b class="hl-bad">那支腳本不在本 repo 內</b>。</li>
+  <li><b class="hl-bad">教材仍然會過期。</b>檢查器只保證它檢查的那一項，不保證它旁邊那一片。
+      如果某支程式後來被改過而章節沒跟上，以程式碼為準。</li>
+</ul>
+
+</div>
+</body>
+</html>

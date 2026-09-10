@@ -1,0 +1,1122 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Step 1 — 用 40 格的表格學會追人｜RL Playground</title>
+<style>
+:root{
+  --bg:#12141a; --panel:#1a1d26; --panel2:#20242f; --ink:#e6e9f0; --muted:#98a0b3;
+  --line:#2c3140; --accent:#e0a350; --ok:#4ec9a5; --bad:#ef6b6b; --agent:#6aa9ff;
+  --shadow:0 1px 0 rgba(255,255,255,.03), 0 8px 24px rgba(0,0,0,.35);
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --panel2:#f0f2f6; --ink:#1a1d26; --muted:#5c6577;
+    --line:#dfe3ea; --accent:#b0700f; --ok:#128063; --bad:#c0392b; --agent:#1f6feb;
+    --shadow:0 1px 2px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.06);
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.85 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Hiragino Sans TC","Microsoft JhengHei",sans-serif;}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px 80px}
+a{color:var(--accent)}
+code,kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+p code,li code,td code{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+
+b.hl-ok{color:var(--ok)} b.hl-bad{color:var(--bad)} b.hl-key{color:var(--accent)}
+
+/* ---- pagenav ---- */
+.pagenav{display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  padding:14px 0;border-bottom:1px solid var(--line);margin-bottom:28px}
+.pagenav.bottom{border-bottom:0;border-top:1px solid var(--line);margin:48px 0 0}
+.pagenav a,.pagenav span{font-size:13.5px;text-decoration:none;padding:6px 12px;border-radius:7px;
+  border:1px solid var(--line);background:var(--panel)}
+.pagenav span{color:var(--muted);opacity:.5}
+.pagenav .spacer{flex:1;border:0;background:none;padding:0}
+
+/* ---- hero ---- */
+.hero{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:30px 32px;margin-bottom:34px;box-shadow:var(--shadow)}
+.badge{display:inline-block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:3px 12px;margin-bottom:14px}
+.hero h1{margin:.1em 0 .35em;font-size:31px;line-height:1.35;letter-spacing:-.01em}
+.lead{color:var(--muted);font-size:16.5px;margin:0 0 20px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font:12.5px/1 ui-monospace,SFMono-Regular,Menlo,monospace;padding:6px 10px;border-radius:6px;
+  background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
+.chip.new{border-color:var(--ok);color:var(--ok)}
+
+h2{margin:52px 0 14px;font-size:23px;letter-spacing:-.01em;scroll-margin-top:16px}
+h2::before{content:"";display:block;width:38px;height:3px;background:var(--accent);
+  border-radius:2px;margin-bottom:14px}
+h3{margin:34px 0 10px;font-size:17.5px;color:var(--ink)}
+p{margin:0 0 16px}
+ul,ol{margin:0 0 16px;padding-left:22px} li{margin:5px 0}
+
+/* ---- code / shell / output ---- */
+pre{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:16px 18px;overflow-x:auto;margin:0 0 18px;
+  font:13px/1.75 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+pre.shell{border-left:3px solid var(--accent);position:relative;padding-top:34px}
+pre.shell::before{content:"貼上執行（在 repo 根目錄）";position:absolute;top:9px;left:18px;
+  font:11px/1 -apple-system,sans-serif;letter-spacing:.08em;color:var(--accent)}
+pre.out{border-left:3px solid var(--line);position:relative;padding-top:34px;color:var(--muted)}
+pre.out::before{content:"實際輸出";position:absolute;top:9px;left:18px;
+  font:11px/1 -apple-system,sans-serif;letter-spacing:.08em;color:var(--muted)}
+pre.src{border-left:3px solid var(--agent);position:relative;padding-top:34px}
+pre.src::before{content:attr(data-src);position:absolute;top:9px;left:18px;
+  font:11px/1 ui-monospace,monospace;letter-spacing:.04em;color:var(--agent)}
+pre .hi{display:block;background:rgba(224,163,80,.13);border-left:3px solid var(--accent);
+  margin:0 -18px;padding:0 0 0 15px}
+pre .dim{color:var(--muted);opacity:.65}
+.mark{color:var(--accent);font-weight:700}
+
+/* ---- figures ---- */
+figure.fig{margin:26px 0;background:var(--panel);border:1px solid var(--line);
+  border-radius:12px;padding:20px 20px 12px;overflow-x:auto;box-shadow:var(--shadow)}
+figure.fig svg{width:100%;height:auto;display:block;min-width:620px}
+figcaption{margin-top:12px;color:var(--muted);font-size:13.5px;line-height:1.7}
+.s-lbl{font-size:13px;fill:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang TC",sans-serif}
+.s-sm{font-size:11.5px;fill:var(--muted);
+  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang TC",sans-serif}
+.s-mono{font-size:11.5px;fill:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.s-key{font-size:12.5px;fill:var(--accent);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.s-box{fill:var(--panel2);stroke:var(--line);stroke-width:1.2}
+svg a{cursor:pointer}
+svg a:hover .s-box{stroke:var(--accent);stroke-width:2}
+
+/* ---- legend ---- */
+.legend{display:flex;gap:18px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:12px 16px;margin:20px 0;font-size:13.5px;color:var(--muted)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:7px;vertical-align:-1px}
+
+/* ---- tables ---- */
+.tbl{width:100%;border-collapse:collapse;margin:0 0 20px;font-size:14.5px;display:block;overflow-x:auto}
+.tbl th,.tbl td{border:1px solid var(--line);padding:10px 13px;text-align:left;vertical-align:top}
+.tbl th{background:var(--panel2);font-weight:600;font-size:13.5px;color:var(--muted);white-space:nowrap}
+.tbl tbody tr:nth-child(even){background:rgba(127,127,127,.04)}
+
+/* ---- callout ---- */
+.note{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:0 10px 10px 0;padding:16px 20px;margin:22px 0}
+.note b{color:var(--accent)}
+.note.warn{border-left-color:var(--bad)} .note.warn b{color:var(--bad)}
+
+/* ---- pitfall grid ---- */
+.pits{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin:22px 0}
+.pit{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:16px 18px}
+.pit h4{margin:0 0 12px;font-size:15px;line-height:1.5}
+.pit dl{margin:0;font-size:14px;line-height:1.7}
+.pit dt{color:var(--muted);font-size:11.5px;letter-spacing:.1em;margin-top:9px}
+.pit dt:first-child{margin-top:0}
+.pit dd{margin:1px 0 0}
+.pit dd.fix{color:var(--ok)}
+
+/* ---- quiz ---- */
+details.quiz{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 18px;margin:0 0 12px}
+details.quiz summary{cursor:pointer;font-weight:600;font-size:15px}
+details.quiz p{margin:12px 0 0;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="pagenav">
+  <span>← 沒有上一章</span>
+  <a href="index.html">目錄</a>
+  <span class="spacer"></span>
+  <span>下一章準備中 →</span>
+</nav>
+
+<header class="hero">
+  <div class="badge">Step 1</div>
+  <h1>用 40 格的表格，學會在 2D 地圖上追人</h1>
+  <p class="lead">
+    這一章從零開始講強化學習（Reinforcement Learning，以下簡稱 RL）：一個叫 A 的點要去追一個叫 B 的點，
+    B 每 6 秒隨機換位置，一回合 30 秒。我們不寫任何「往 B 的方向走」的規則，
+    只給它獎勵訊號，讓它自己試 2000 回合試出來。整套程式 226 行、一個 numpy 陣列，不需要 PyTorch，也不需要 GPU。
+  </p>
+  <div class="chips">
+    <span class="chip new">chase_2d/chase_2d.py</span>
+    <span class="chip new">requirements.txt</span>
+    <span class="chip new">.gitignore</span>
+    <span class="chip">產出：q_table.npy</span>
+    <span class="chip">產出：training_result.png</span>
+  </div>
+</header>
+
+<h2 id="sec-setup">第 0 步：把環境準備好</h2>
+<p>
+  這一章所有指令都<b class="hl-key">在 repo 根目錄執行</b>（也就是 <code>rl_playground/</code> 這一層），
+  沒有例外。先做這一次，後面就不用再管環境了：
+</p>
+<pre class="shell">git clone &lt;this-repo&gt; rl_playground
+cd rl_playground
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt</pre>
+<p>
+  <code>&lt;this-repo&gt;</code> 請換成你拿到的 repo 位址；如果你已經有這個資料夾了，
+  從 <code>cd rl_playground</code> 那行開始做就好。之後每次開新的終端機都要重跑一次
+  <code>source .venv/bin/activate</code>，否則 <code>python</code> 會抓到系統的那一個、找不到 numpy。
+</p>
+<p>
+  <code>requirements.txt</code> 裡只有兩行：<code>numpy</code> 和 <code>matplotlib</code>。
+  這一章不用 PyTorch、不用 gymnasium、不用 GPU——整個學習過程就是在一個 40×8 的 numpy 陣列上做加減法。
+</p>
+
+<table class="tbl">
+  <thead><tr><th>你可能以為要自己做</th><th>實際上</th></tr></thead>
+  <tbody>
+    <tr><td>要先裝 CUDA / PyTorch</td><td>不用。這一章沒有神經網路，CPU 幾秒就跑完（實測 Apple M4 Pro 上訓練 4.4 秒）。</td></tr>
+    <tr><td>要先下載訓練好的模型</td><td>不用，但也<b class="hl-bad">不能跳過訓練</b>。<code>q_table.npy</code> 被 <code>.gitignore</code> 排除，clone 下來不會有，要自己跑一次訓練生出來。</td></tr>
+    <tr><td>要自己開 matplotlib 視窗 / 存圖</td><td>不用，程式跑完會自己開動畫視窗，也會自己把學習曲線存成 <code>training_result.png</code>（<code>chase_2d/chase_2d.py:215</code>）。</td></tr>
+    <tr><td>要 <code>cd</code> 進 <code>chase_2d/</code> 才跑得動</td><td>不用。產出檔的路徑是用 <code>__file__</code> 算的，從哪個目錄執行都會落在 <code>chase_2d/</code> 裡（<code>chase_2d/chase_2d.py:50-52</code>）。</td></tr>
+  </tbody>
+</table>
+
+<h2 id="sec-why">為什麼需要 RL？（先承認一件事）</h2>
+<p>
+  先講一件對讀者誠實的事：<b class="hl-bad">這個追逐任務，用 if-else 兩行就寫完了</b>。
+  算出 B 減 A 的方向向量，往那個方向走，結束。不需要任何機器學習。
+</p>
+<p>
+  所以這一章的重點<b class="hl-key">不是解決這個問題，而是示範一種「不告訴電腦規則」的解法長什麼樣子</b>。
+  我們刻意把「往 B 走」這個知識藏起來，只給程式兩樣東西：一個可以動作的環境，
+  和一個「這一步做得好不好」的分數。剩下的讓它自己試。
+</p>
+<p>
+  之所以要學這種繞遠路的解法，是因為<b class="hl-key">真實世界的問題往往寫不出那兩行 if-else</b>——
+  下圍棋要怎麼寫？機械手臂怎麼抓沒看過的杯子？資料中心的冷卻怎麼調最省電？
+  這些問題你知道「什麼結果算好」，但不知道「每一步該怎麼做」。RL 就是為這種問題設計的。
+  用一個你能親手驗算的簡單任務來學，比一開始就啃圍棋容易太多。
+</p>
+
+<figure class="fig">
+<svg viewBox="0 0 900 220" role="img" aria-label="監督式學習與強化學習的資料流比較：前者由人提供正確答案，後者由環境提供獎勵">
+  <defs>
+    <marker id="ar-a" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+      <path d="M0,0 L7,3.2 L0,6.4 z" fill="var(--accent)"/>
+    </marker>
+  </defs>
+  <text class="s-lbl" x="215" y="32" text-anchor="middle" font-weight="700">監督式學習</text>
+  <rect class="s-box" x="30" y="90" width="110" height="50" rx="9"/>
+  <text class="s-lbl" x="85" y="120" text-anchor="middle">訓練資料</text>
+  <line x1="142" y1="115" x2="176" y2="115" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar-a)"/>
+  <rect class="s-box" x="180" y="90" width="90" height="50" rx="9"/>
+  <text class="s-lbl" x="225" y="120" text-anchor="middle">模型</text>
+  <line x1="272" y1="115" x2="306" y2="115" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar-a)"/>
+  <rect class="s-box" x="310" y="90" width="90" height="50" rx="9"/>
+  <text class="s-lbl" x="355" y="120" text-anchor="middle">預測</text>
+  <text class="s-sm" x="215" y="175" text-anchor="middle">每一筆資料都附著正確答案，是人給的</text>
+
+  <line x1="445" y1="20" x2="445" y2="200" stroke="var(--line)" stroke-width="1" stroke-dasharray="4 4"/>
+
+  <text class="s-lbl" x="675" y="32" text-anchor="middle" font-weight="700">強化學習</text>
+  <rect class="s-box" x="470" y="90" width="140" height="50" rx="9" style="stroke:var(--agent);stroke-width:1.8"/>
+  <text class="s-lbl" x="540" y="120" text-anchor="middle">A（學習者）</text>
+  <rect class="s-box" x="740" y="90" width="140" height="50" rx="9" style="stroke:var(--ok);stroke-width:1.8"/>
+  <text class="s-lbl" x="810" y="120" text-anchor="middle">環境</text>
+  <line x1="614" y1="102" x2="736" y2="102" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar-a)"/>
+  <text class="s-sm" x="675" y="94" text-anchor="middle">動作</text>
+  <line x1="736" y1="130" x2="614" y2="130" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar-a)"/>
+  <text class="s-sm" x="675" y="150" text-anchor="middle">新狀態 ＋ 獎勵</text>
+  <text class="s-sm" x="675" y="175" text-anchor="middle">沒有正確答案，只有分數；答案要自己試出來</text>
+</svg>
+<figcaption>圖 1.1 — 兩者最大的差別不在演算法，而在<strong>資料哪裡來</strong>：監督式學習等著人餵標好答案的資料，RL 自己動手產生資料，代價是要試很多次。</figcaption>
+</figure>
+
+<div class="legend">
+  <span><i style="background:var(--agent)"></i>A：學習者（agent）</span>
+  <span><i style="background:var(--ok)"></i>環境（<code>ChaseEnv</code>）</span>
+  <span><i style="background:var(--accent)"></i>Q 表：學到的知識</span>
+  <span><i style="background:var(--bad)"></i>B：目標與獎勵訊號</span>
+</div>
+<p style="color:var(--muted);font-size:13.5px;margin-top:-8px">
+  上面這組顏色在全書每一張圖裡代表同一件事，看圖時可以直接對照。
+</p>
+
+<h2 id="sec-journey">全景：一個 step 走過哪五站</h2>
+<p>
+  RL 的程式長得都很像：一個迴圈，每一圈叫做一個 <b class="hl-key">step</b>。
+  （注意這個字有兩個意思：外層迴圈的一圈是一個 step，而其中一站會呼叫環境的
+  <code>env.step()</code> 方法。下面提到方法時都會寫成 <code>env.step()</code> 加括號。）
+  這支程式一個 step 走五站，訓練時總共會跑 2000 回合 × 300 步 = 60 萬個 step。
+  下面每個方框都可以點，會跳到對應的小節。
+</p>
+
+<figure class="fig">
+<svg viewBox="0 0 900 235" role="img" aria-label="一個 step 的五個階段：觀察、選動作、環境推進、算獎勵、更新 Q 表，然後回到觀察">
+  <defs>
+    <marker id="ar-b" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+      <path d="M0,0 L7,3.2 L0,6.4 z" fill="var(--accent)"/>
+    </marker>
+  </defs>
+  <a href="#sec-state">
+    <rect class="s-box" x="35" y="60" width="150" height="64" rx="10" style="stroke:var(--agent);stroke-width:1.8"/>
+    <text class="s-lbl" x="110" y="88" text-anchor="middle" font-weight="700">1. observe()</text>
+    <text class="s-sm"  x="110" y="108" text-anchor="middle">位置 → 狀態編號</text>
+  </a>
+  <line x1="187" y1="92" x2="201" y2="92" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar-b)"/>
+  <a href="#sec-explore">
+    <rect class="s-box" x="205" y="60" width="150" height="64" rx="10" style="stroke:var(--agent);stroke-width:1.8"/>
+    <text class="s-lbl" x="280" y="88" text-anchor="middle" font-weight="700">2. 選一個動作</text>
+    <text class="s-sm"  x="280" y="108" text-anchor="middle">查表 或 亂猜</text>
+  </a>
+  <line x1="357" y1="92" x2="371" y2="92" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar-b)"/>
+  <a href="#sec-env">
+    <rect class="s-box" x="375" y="60" width="150" height="64" rx="10" style="stroke:var(--ok);stroke-width:1.8"/>
+    <text class="s-lbl" x="450" y="88" text-anchor="middle" font-weight="700">3. env.step()</text>
+    <text class="s-sm"  x="450" y="108" text-anchor="middle">A 移動、B 可能換位</text>
+  </a>
+  <line x1="527" y1="92" x2="541" y2="92" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar-b)"/>
+  <a href="#sec-reward">
+    <rect class="s-box" x="545" y="60" width="150" height="64" rx="10" style="stroke:var(--bad);stroke-width:1.8"/>
+    <text class="s-lbl" x="620" y="88" text-anchor="middle" font-weight="700">4. 算獎勵</text>
+    <text class="s-sm"  x="620" y="108" text-anchor="middle">靠近多少給多少</text>
+  </a>
+  <line x1="697" y1="92" x2="711" y2="92" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar-b)"/>
+  <a href="#sec-update">
+    <rect class="s-box" x="715" y="60" width="150" height="64" rx="10" style="stroke:var(--accent);stroke-width:1.8"/>
+    <text class="s-lbl" x="790" y="88" text-anchor="middle" font-weight="700">5. 更新 Q 表</text>
+    <text class="s-sm"  x="790" y="108" text-anchor="middle">只有一行公式</text>
+  </a>
+  <path d="M790,126 L790,170 L110,170 L110,128" fill="none" stroke="var(--accent)"
+        stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#ar-b)"/>
+  <text class="s-sm" x="450" y="163" text-anchor="middle">重複 60 萬次</text>
+  <text class="s-sm" x="450" y="205" text-anchor="middle">整趟旅程只有第 5 站會改變 A 的知識，其餘四站都是在產生「一筆經驗」</text>
+</svg>
+<figcaption>圖 1.2 — 五個方框都可以點。值得注意的是第 3、4 站屬於環境（綠、紅），第 1、2、5 站屬於學習者（藍、橘）；這條界線就是 RL 程式的模組分工。</figcaption>
+</figure>
+
+<h2 id="sec-env">第 3 站：環境長什麼樣子</h2>
+<p>
+  <code>ChaseEnv</code> 就是這個世界的規則書。它的介面刻意模仿業界標準函式庫
+  <a href="https://gymnasium.farama.org/">gymnasium</a>：一個 <code>reset()</code> 開新回合，
+  一個 <code>step(action)</code> 推進一步。你之後看到的九成 RL 程式都是這個形狀，先熟悉它很划算。
+</p>
+
+<pre class="src" data-src="chase_2d/chase_2d.py:27-32">MAP_SIZE       = 10.0   # 地圖邊長
+DT             = 0.1    # 每一步代表多少秒
+MAX_STEPS      = 300    # 一個 episode 幾步（-&gt; 30 秒）
+RETARGET_EVERY = 60     # 幾步之後 B 換位置（-&gt; 6 秒）
+AGENT_SPEED    = 3.0    # A 的速度，單位 / 秒
+CATCH_RADIUS   = 0.4    # 距離小於這個值就算抓到</pre>
+
+<p>
+  這裡有一個新手很容易搞混的地方：<b class="hl-key">程式裡的迴圈跑的是「步」，不是「秒」</b>。
+  <code>DT = 0.1</code> 是「一步代表 0.1 秒」的換算率，它從頭到尾只出現在顯示文字裡，
+  不影響任何邏輯。所以 <code>MAX_STEPS = 300</code> 是 300 次迴圈，對外說成 30 秒。
+</p>
+
+<figure class="fig">
+<svg viewBox="0 0 900 200" role="img" aria-label="一個 episode 的時間軸，300 步分成 5 段，每 60 步目標 B 換一次位置">
+  <text class="s-lbl" x="450" y="34" text-anchor="middle">一個 episode = 300 步 = 30 秒（dt = 0.1 秒 / 步）</text>
+  <rect x="60"  y="70" width="160" height="36" rx="4" fill="var(--panel2)" stroke="var(--bad)" stroke-width="1.2"/>
+  <rect x="220" y="70" width="160" height="36" rx="4" fill="var(--panel2)" stroke="var(--bad)" stroke-width="1.2"/>
+  <rect x="380" y="70" width="160" height="36" rx="4" fill="var(--panel2)" stroke="var(--bad)" stroke-width="1.2"/>
+  <rect x="540" y="70" width="160" height="36" rx="4" fill="var(--panel2)" stroke="var(--bad)" stroke-width="1.2"/>
+  <rect x="700" y="70" width="160" height="36" rx="4" fill="var(--panel2)" stroke="var(--bad)" stroke-width="1.2"/>
+  <text class="s-sm" x="140" y="93" text-anchor="middle">6 秒</text>
+  <text class="s-sm" x="300" y="93" text-anchor="middle">6 秒</text>
+  <text class="s-sm" x="460" y="93" text-anchor="middle">6 秒</text>
+  <text class="s-sm" x="620" y="93" text-anchor="middle">6 秒</text>
+  <text class="s-sm" x="780" y="93" text-anchor="middle">6 秒</text>
+  <line x1="60"  y1="106" x2="60"  y2="120" stroke="var(--line)"/>
+  <line x1="220" y1="106" x2="220" y2="120" stroke="var(--line)"/>
+  <line x1="380" y1="106" x2="380" y2="120" stroke="var(--line)"/>
+  <line x1="540" y1="106" x2="540" y2="120" stroke="var(--line)"/>
+  <line x1="700" y1="106" x2="700" y2="120" stroke="var(--line)"/>
+  <line x1="860" y1="106" x2="860" y2="120" stroke="var(--line)"/>
+  <text class="s-sm"   x="18" y="136">步</text>
+  <text class="s-mono" x="60"  y="136" text-anchor="middle">0</text>
+  <text class="s-mono" x="220" y="136" text-anchor="middle">60</text>
+  <text class="s-mono" x="380" y="136" text-anchor="middle">120</text>
+  <text class="s-mono" x="540" y="136" text-anchor="middle">180</text>
+  <text class="s-mono" x="700" y="136" text-anchor="middle">240</text>
+  <text class="s-mono" x="860" y="136" text-anchor="middle">300</text>
+  <text class="s-sm"   x="18" y="158">秒</text>
+  <text class="s-mono" x="60"  y="158" text-anchor="middle">0.0</text>
+  <text class="s-mono" x="220" y="158" text-anchor="middle">6.0</text>
+  <text class="s-mono" x="380" y="158" text-anchor="middle">12.0</text>
+  <text class="s-mono" x="540" y="158" text-anchor="middle">18.0</text>
+  <text class="s-mono" x="700" y="158" text-anchor="middle">24.0</text>
+  <text class="s-mono" x="860" y="158" text-anchor="middle">30.0</text>
+  <text class="s-sm" x="450" y="186" text-anchor="middle">每一段結束時 B 隨機換位置；B 被抓到也會立刻換，而且計時器重新算</text>
+</svg>
+<figcaption>圖 1.3 — 一回合固定 300 步，中間至少換 5 次目標。這個設計讓「追到之後還要再找下一個」變成常態，而不是追到一次就結束。</figcaption>
+</figure>
+
+<p>
+  推進一步的程式碼如下。<code>np.linalg.norm(v)</code> 算的就是向量長度，也就是畢氏定理的
+  「x 平方加 y 平方再開根號」；<code>observe()</code> 裡算同一件事時用的是 <code>np.hypot(x, y)</code>，
+  兩者結果相同，差別只在一個吃向量、一個吃兩個數字，沒有隱藏的玄機。
+  中間 <code>if caught:</code> 那一段是「抓到了」的處理，注意它<b class="hl-key">不會結束回合</b>，
+  而是讓 B 立刻跳走、計時器歸零，於是 A 得馬上開始追下一個：
+</p>
+
+<pre class="src" data-src="chase_2d/chase_2d.py:82-104">    def step(self, action, rng):
+        prev_dist = float(np.linalg.norm(self.b - self.a))
+
+<span class="dim">        # A 往選定方向移動，並限制在地圖範圍內</span>
+        self.a = np.clip(self.a + ACTIONS[action] * AGENT_SPEED * DT, 0.0, MAP_SIZE)
+        dist = float(np.linalg.norm(self.b - self.a))
+
+<span class="dim">        # 獎勵：靠近多少就給多少分（遠離就是負的），抓到再加一筆大獎勵。
+        # 這種「進度獎勵」比「只有抓到才給分」學得更快也更好（實測 15.7 vs 12.4）。</span>
+<span class="hi">        reward = prev_dist - dist</span>
+        caught = dist &lt; CATCH_RADIUS
+        if caught:
+            reward += 10.0
+            self.catches += 1
+            self.relocate(rng)
+
+        self.step_count += 1
+        self.timer += 1
+<span class="dim">        if self.timer &gt;= RETARGET_EVERY:    # 時間到，B 自己換位置</span>
+            self.relocate(rng)
+
+        done = self.step_count &gt;= MAX_STEPS
+        return self.observe(), reward, done, caught</pre>
+
+<p>
+  回傳的四個值裡，<code>done</code> 表示「這一回合的 300 步跑完了」。
+  它不是沒人用——訓練迴圈在 <code>chase_2d.py:135-136</code> 用
+  <code>if done: break</code> 接住它，只是那兩行落在本章引用的節錄範圍外。
+</p>
+<div class="note">
+  <b>為什麼 rng 要當參數傳進來，而不是用 <code>np.random</code>？</b>
+  因為這樣整支程式的隨機性都來自呼叫端建立的那一個 <code>default_rng(seed)</code>。
+  結果是<b>訓練完全可重現</b>——你等一下跑出來的數字，會跟這一章寫的一模一樣。
+  用全域的 <code>np.random</code> 就做不到這件事，而不可重現的 RL 實驗幾乎沒辦法除錯。
+</div>
+
+<h2 id="sec-state">第 1 站：把連續的世界壓成 40 個格子</h2>
+<p>
+  這是整章最關鍵的設計，也是新手最容易寫錯的地方。
+</p>
+<p>
+  Q-Learning 需要一張表，表要有<b class="hl-key">有限個列</b>。但 A 和 B 的座標是連續的浮點數，
+  組合有無限多種，沒辦法當表的列。所以我們得先做<b class="hl-key">狀態離散化</b>：
+  把「這個世界現在的樣子」壓縮成一個整數。
+</p>
+<p>
+  壓縮一定會丟資訊，問題是丟哪些。這裡的關鍵洞察是：
+  <b class="hl-key">A 根本不需要知道自己在地圖的哪裡，也不需要知道 B 在哪裡，
+  它只需要知道「B 在我的哪個方向、大概多遠」</b>。
+  絕對座標丟掉之後，狀態數從無限變成 8 × 5 = 40 個。
+</p>
+<p>分格的參數就這四個常數，下面的程式碼會一直用到它們：</p>
+<pre class="src" data-src="chase_2d/chase_2d.py:38-41">N_ANGLE_BINS = 8                               # 方向切成 8 格
+DIST_EDGES   = np.array([0.5, 1.5, 3.0, 6.0])  # 距離切成 5 段
+N_DIST_BINS  = len(DIST_EDGES) + 1
+N_STATES     = N_ANGLE_BINS * N_DIST_BINS      # 8 x 5 = 40 個狀態</pre>
+
+<pre class="src" data-src="chase_2d/chase_2d.py:66-76">    def observe(self):
+        &quot;&quot;&quot;把連續的相對位置壓成一個整數狀態編號。&quot;&quot;&quot;
+        d = self.b - self.a
+        dist = float(np.hypot(d[0], d[1]))
+        angle = np.arctan2(d[1], d[0]) % (2 * np.pi)
+
+<span class="hi">        # 加半格再分箱，讓每一格的「中心」剛好對準一個動作方向
+        shifted = (angle + np.pi / N_ANGLE_BINS) % (2 * np.pi)</span>
+        angle_bin = int(shifted / (2 * np.pi) * N_ANGLE_BINS) % N_ANGLE_BINS
+        dist_bin  = int(np.digitize(dist, DIST_EDGES))
+        return angle_bin * N_DIST_BINS + dist_bin</pre>
+
+<p>
+  中間那三行角度計算，如果你跟三角函數不熟，拆開來是這樣：
+</p>
+<ul>
+  <li><b class="hl-key">這裡的角度單位是弧度（radian），不是度數</b>。一整圈是 <code>2 * np.pi</code>（約 6.283），不是 360。</li>
+  <li><code>np.arctan2(y, x)</code> 從一個向量算出它的角度。參數順序是 <b>y 在前、x 在後</b>（跟一般寫座標的順序相反，很容易寫錯）。它回傳 <code>-π ~ π</code>，也就是<b>指向下方時會是負數</b>；後面的 <code>% (2 * np.pi)</code> 就是把負角度轉成 <code>0 ~ 2π</code>，好拿去分格。</li>
+  <li>一圈切 8 格，所以<b class="hl-key">一格是 2π/8，半格就是 π/8</b>——這正是程式裡的 <code>np.pi / N_ANGLE_BINS</code>。先把角度加上半格再分箱，等於把所有格線轉了 22.5 度，於是每一格的正中央剛好落在一個動作方向上，也就是圖 1.4 裡灰線與橘線錯開的那件事。</li>
+</ul>
+<p>
+  最後一行 <code>angle_bin * N_DIST_BINS + dist_bin</code> 是把二維的
+  （方向, 距離）壓成一維編號的標準寫法，跟你把二維陣列攤平成一維時寫的
+  <code>row * width + col</code> 是同一招。
+</p>
+<div class="note">
+  <b><code>np.digitize</code> 的邊界算左邊還是右邊？</b>
+  預設<b>含左不含右</b>：距離剛好等於 0.5 會落到距離格 1，不是距離格 0。
+  所以 <code>DIST_EDGES = [0.5, 1.5, 3.0, 6.0]</code> 切出來的五格是
+  <code>[0, 0.5)</code>、<code>[0.5, 1.5)</code>、<code>[1.5, 3.0)</code>、<code>[3.0, 6.0)</code>、<code>[6.0, ∞)</code>。
+  這種邊界歸屬正是最容易寫出 off-by-one 的地方，下一節的驗證指令可以讓你自己印出來確認。
+</div>
+
+<figure class="fig">
+<svg viewBox="0 0 900 350" role="img" aria-label="以 A 為圓心的極座標分格圖：8 個方向格與 5 段距離格，灰色格線刻意錯開半格對準橘色動作方向">
+  <defs>
+    <marker id="ar-c" markerWidth="8" markerHeight="8" refX="6.5" refY="2.8" orient="auto">
+      <path d="M0,0 L6.5,2.8 L0,5.6 z" fill="var(--accent)"/>
+    </marker>
+  </defs>
+  <circle cx="300" cy="175" r="145" fill="none" stroke="var(--line)" stroke-width="1.2"/>
+  <circle cx="300" cy="175" r="120" fill="none" stroke="var(--line)" stroke-width="1" stroke-dasharray="3 3"/>
+  <circle cx="300" cy="175" r="80"  fill="none" stroke="var(--line)" stroke-width="1" stroke-dasharray="3 3"/>
+  <circle cx="300" cy="175" r="45"  fill="none" stroke="var(--line)" stroke-width="1" stroke-dasharray="3 3"/>
+  <circle cx="300" cy="175" r="20"  fill="none" stroke="var(--bad)"  stroke-width="1.4"/>
+
+  <line x1="300" y1="175" x2="434.0" y2="119.5" stroke="var(--line)" stroke-width="1"/>
+  <line x1="300" y1="175" x2="355.5" y2="41.0"  stroke="var(--line)" stroke-width="1"/>
+  <line x1="300" y1="175" x2="244.5" y2="41.0"  stroke="var(--line)" stroke-width="1"/>
+  <line x1="300" y1="175" x2="166.0" y2="119.5" stroke="var(--line)" stroke-width="1"/>
+  <line x1="300" y1="175" x2="166.0" y2="230.5" stroke="var(--line)" stroke-width="1"/>
+  <line x1="300" y1="175" x2="244.5" y2="309.0" stroke="var(--line)" stroke-width="1"/>
+  <line x1="300" y1="175" x2="355.5" y2="309.0" stroke="var(--line)" stroke-width="1"/>
+  <line x1="300" y1="175" x2="434.0" y2="230.5" stroke="var(--line)" stroke-width="1"/>
+
+  <line x1="300" y1="175" x2="430.0" y2="175.0" stroke="var(--accent)" stroke-width="1.8" marker-end="url(#ar-c)"/>
+  <line x1="300" y1="175" x2="391.9" y2="83.1"  stroke="var(--accent)" stroke-width="1.8" marker-end="url(#ar-c)"/>
+  <line x1="300" y1="175" x2="300.0" y2="45.0"  stroke="var(--accent)" stroke-width="1.8" marker-end="url(#ar-c)"/>
+  <line x1="300" y1="175" x2="208.1" y2="83.1"  stroke="var(--accent)" stroke-width="1.8" marker-end="url(#ar-c)"/>
+  <line x1="300" y1="175" x2="170.0" y2="175.0" stroke="var(--accent)" stroke-width="1.8" marker-end="url(#ar-c)"/>
+  <line x1="300" y1="175" x2="208.1" y2="266.9" stroke="var(--accent)" stroke-width="1.8" marker-end="url(#ar-c)"/>
+  <line x1="300" y1="175" x2="300.0" y2="305.0" stroke="var(--accent)" stroke-width="1.8" marker-end="url(#ar-c)"/>
+  <line x1="300" y1="175" x2="391.9" y2="266.9" stroke="var(--accent)" stroke-width="1.8" marker-end="url(#ar-c)"/>
+
+  <circle cx="300" cy="175" r="5" fill="var(--agent)"/>
+  <text class="s-sm" x="300" y="196" text-anchor="middle">A</text>
+
+  <text class="s-lbl" x="450" y="179" text-anchor="middle">0</text>
+  <text class="s-lbl" x="406" y="69"  text-anchor="middle">1</text>
+  <text class="s-lbl" x="300" y="27"  text-anchor="middle">2</text>
+  <text class="s-lbl" x="194" y="69"  text-anchor="middle">3</text>
+  <text class="s-lbl" x="150" y="179" text-anchor="middle">4</text>
+  <text class="s-lbl" x="194" y="289" text-anchor="middle">5</text>
+  <text class="s-lbl" x="300" y="331" text-anchor="middle">6</text>
+  <text class="s-lbl" x="406" y="289" text-anchor="middle">7</text>
+
+  <text class="s-lbl" x="545" y="62" font-weight="700">分格規則</text>
+  <text class="s-sm"  x="545" y="100">距離格 0：小於 0.5（抓到門檻是 0.4）</text>
+  <text class="s-sm"  x="545" y="126">距離格 1：0.5 ~ 1.5</text>
+  <text class="s-sm"  x="545" y="152">距離格 2：1.5 ~ 3.0</text>
+  <text class="s-sm"  x="545" y="178">距離格 3：3.0 ~ 6.0</text>
+  <text class="s-sm"  x="545" y="204">距離格 4：大於 6.0</text>
+  <text class="s-key" x="545" y="248">state = angle_bin * 5 + dist_bin</text>
+  <text class="s-sm"  x="545" y="274">8 個方向 × 5 段距離 = 40 個狀態</text>
+  <text class="s-sm"  x="545" y="310">灰線是分格邊界，橘線是 8 個動作方向</text>
+</svg>
+<figcaption>圖 1.4 — 注意灰色分格邊界和橘色動作箭頭是<strong>錯開的</strong>：每一格正中央剛好對準一個動作。這個半格偏移就是 <code>chase_2d.py:73</code> 那一行在做的事，拿掉它會導致學到的方向偏一格（見<a href="#sec-pitfalls">常見錯誤</a>第一格）。</figcaption>
+</figure>
+
+<h2 id="sec-action">動作：只有 8 個選項</h2>
+<p>
+  A 每一步只能往八個方向之一走，走的距離固定是
+  <code>AGENT_SPEED * DT</code> = 3.0 × 0.1 = 0.3 個單位。地圖是 10×10，對角線約 14 個單位，
+  所以 60 步（一次換位週期）最多能走 18 個單位——足夠從地圖任一角落走到任一角落。
+  這個數字是刻意調過的：太慢的話 A 永遠追不上，Q 表就學不到「抓到」是什麼感覺。
+</p>
+<p>
+  「單位向量」指的是長度剛好等於 1 的向量——它只表示方向，不表示走多遠，走多遠由後面乘上的速度決定。
+  <code>np.stack([...], axis=1)</code> 把 cos 和 sin 兩排數字<b>按欄併起來</b>，得到 8 列 × 2 欄。
+  與其解釋 <code>axis=1</code>，不如直接印出來看：
+</p>
+<div class="note">
+  <b>下面這種指令怎麼看？</b>本章之後所有的實驗都長這個樣子，拆成兩部分：<br>
+  <code>PYTHONPATH=chase_2d</code> —— 因為 <code>chase_2d.py</code> 在子資料夾裡，
+  從 repo 根目錄 <code>import chase_2d</code> 預設找不到，這個環境變數把子資料夾加進模組搜尋路徑。
+  <b>import 只會執行到常數定義為止</b>，不會啟動訓練（訓練在 <code>if __name__ == "__main__"</code> 裡面）。<br>
+  <code>python - &lt;&lt;'PY' ... PY</code> —— 這是 shell 的 heredoc。
+  <code>python -</code> 表示「程式碼從標準輸入讀」，<code>&lt;&lt;'PY'</code> 到單獨一行 <code>PY</code>
+  之間的所有文字就是那段程式碼。整段（含最後那行 <code>PY</code>）一起複製貼上到終端機按 Enter 就會跑。
+  <b>單引號不能省</b>：<code>&lt;&lt;'PY'</code> 加了引號，shell 才不會去解釋裡面的 <code>$</code> 之類的符號。
+  想改成自己的實驗就直接改中間那幾行，縮排照 Python 的規則即可。
+</div>
+<pre class="src" data-src="chase_2d/chase_2d.py:44-47"><span class="dim"># 8 個方向的單位向量：右、右上、上、左上、左、左下、下、右下</span>
+_ANGLES   = np.arange(8) * (2 * np.pi / 8)
+ACTIONS   = np.stack([np.cos(_ANGLES), np.sin(_ANGLES)], axis=1)
+N_ACTIONS = len(ACTIONS)</pre>
+<pre class="shell">PYTHONPATH=chase_2d python - &lt;&lt;'PY'
+import numpy as np, chase_2d as C
+np.set_printoptions(precision=2, suppress=True)
+print("ACTIONS.shape =", C.ACTIONS.shape)
+print(C.ACTIONS)
+print()
+print("每一列的長度（都應該是 1.0）:", np.round(np.linalg.norm(C.ACTIONS, axis=1), 3))
+PY</pre>
+<pre class="out">ACTIONS.shape = (8, 2)
+[[ 1.    0.  ]
+ [ 0.71  0.71]
+ [ 0.    1.  ]
+ [-0.71  0.71]
+ [-1.    0.  ]
+ [-0.71 -0.71]
+ [-0.   -1.  ]
+ [ 0.71 -0.71]]
+
+每一列的長度（都應該是 1.0）: [1. 1. 1. 1. 1. 1. 1. 1.]</pre>
+<p>
+  第 0 列 <code>[1, 0]</code> 是往右，第 2 列 <code>[0, 1]</code> 是往上，
+  第 4 列 <code>[-1, 0]</code> 是往左——編號跟圖 1.4 一致。
+</p>
+
+<h2 id="sec-reward">第 4 站：獎勵怎麼設計</h2>
+<p>
+  獎勵函式是 RL 裡<b class="hl-key">唯一由你決定「什麼叫做好」</b>的地方，也是最容易毀掉一個專案的地方。
+  這支程式的獎勵只有一行加一個 if：
+</p>
+<pre class="src" data-src="chase_2d/chase_2d.py:91-96">        reward = prev_dist - dist
+        caught = dist &lt; CATCH_RADIUS
+        if caught:
+            reward += 10.0
+            self.catches += 1
+            self.relocate(rng)</pre>
+<p>
+  <code>prev_dist - dist</code> 叫做<b class="hl-key">進度獎勵</b>（也常被稱為 reward shaping）：
+  這一步靠近了多少，就給多少分；走遠了就是負分。
+  最直覺的替代方案是「只有抓到才給 10 分，其他時候 0 分」，這叫<b class="hl-key">稀疏獎勵</b>。
+</p>
+<p>
+  稀疏獎勵的問題在於：一開始 A 亂走，可能好幾百步都碰不到 B，於是絕大多數的 step 學到的都是
+  「做什麼都一樣，反正都 0 分」。進度獎勵則是<b class="hl-ok">每一步都有回饋</b>，學習訊號密得多。
+</p>
+<p>
+  這個差距有多大？<a href="#sec-verify">後面的驗證章節</a>有實測：
+  進度獎勵 <b class="hl-ok">15.65</b> 次，稀疏獎勵 <b>12.36</b> 次。
+  進度獎勵確實比較好也比較快，但<b class="hl-key">沒有好到「非它不可」</b>——
+  因為這個任務太簡單、抓到的頻率夠高，稀疏獎勵一樣學得起來。
+  在比較難的任務上，這個差距會從「好一點」變成「一個能學一個完全學不動」。
+</p>
+<div class="note warn">
+  <b>獎勵設計的經典陷阱</b>：如果你把獎勵寫成「每一步只要離 B 很近就 +1」，
+  A 會學到<b>繞著 B 打轉但故意不碰到它</b>——因為抓到會讓 B 跳走，反而中斷了穩定的加分。
+  RL 會精準地優化你寫下的分數，而不是你心裡想的目標。這類現象叫 reward hacking。
+</div>
+
+<h2 id="sec-qtable">Q 表到底是什麼</h2>
+<p>
+  講到這裡都還沒出現「學習」。學到的東西全部存在一個叫 Q 表的二維陣列裡，就這麼一行：
+</p>
+<pre class="src" data-src="chase_2d/chase_2d.py:112">    q = np.zeros((N_STATES, N_ACTIONS))</pre>
+<p>
+  <code>q[s, a]</code> 這個數字的意思是：<b class="hl-key">「在狀態 s 之下做動作 a，從現在到回合結束，我預期總共能拿到多少分」</b>。
+  它不是「這一步能拿多少分」，而是把未來也算進去的長期期望值。這個區別是 Q-Learning 的整個重點。
+</p>
+<p>
+  有了這張表，「決策」就退化成一次查表：看目前是哪個狀態，挑那一列裡最大的那一格。
+</p>
+
+<figure class="fig">
+<svg viewBox="0 0 900 300" role="img" aria-label="Q 表結構示意：40 列狀態乘 8 欄動作，取出第 13 列後用 argmax 挑出最大值對應的動作">
+  <defs>
+    <marker id="ar-d" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+      <path d="M0,0 L7,3.2 L0,6.4 z" fill="var(--accent)"/>
+    </marker>
+  </defs>
+  <text class="s-sm" x="150" y="42" text-anchor="middle">動作</text>
+  <text class="s-sm" x="228" y="60" text-anchor="middle">右</text>
+  <text class="s-sm" x="280" y="60" text-anchor="middle">右上</text>
+  <text class="s-sm" x="332" y="60" text-anchor="middle">上</text>
+  <text class="s-sm" x="384" y="60" text-anchor="middle">左上</text>
+  <text class="s-sm" x="436" y="60" text-anchor="middle">左</text>
+  <text class="s-sm" x="488" y="60" text-anchor="middle">左下</text>
+  <text class="s-sm" x="540" y="60" text-anchor="middle">下</text>
+  <text class="s-sm" x="592" y="60" text-anchor="middle">右下</text>
+
+  <rect x="202" y="70"  width="416" height="30" fill="none" stroke="var(--line)"/>
+  <rect x="202" y="100" width="416" height="30" fill="none" stroke="var(--line)"/>
+  <rect x="202" y="130" width="416" height="30" fill="none" stroke="var(--line)"/>
+  <rect x="202" y="160" width="416" height="30" fill="rgba(224,163,80,.10)" stroke="var(--accent)" stroke-width="1.6"/>
+  <rect x="202" y="190" width="416" height="30" fill="none" stroke="var(--line)"/>
+  <rect x="202" y="220" width="416" height="30" fill="none" stroke="var(--line)"/>
+  <rect x="306" y="160" width="52"  height="30" fill="rgba(78,201,165,.20)" stroke="var(--ok)" stroke-width="1.6"/>
+
+  <text class="s-mono" x="196" y="90"  text-anchor="end">state 0</text>
+  <text class="s-mono" x="196" y="120" text-anchor="end">state 1</text>
+  <text class="s-mono" x="196" y="150" text-anchor="end">...</text>
+  <text class="s-mono" x="196" y="180" text-anchor="end">state 13</text>
+  <text class="s-mono" x="196" y="210" text-anchor="end">...</text>
+  <text class="s-mono" x="196" y="240" text-anchor="end">state 39</text>
+
+  <text class="s-mono" x="228" y="180" text-anchor="middle">13.73</text>
+  <text class="s-mono" x="280" y="180" text-anchor="middle">14.09</text>
+  <text class="s-mono" x="332" y="180" text-anchor="middle" style="fill:var(--ok)" font-weight="700">15.70</text>
+  <text class="s-mono" x="384" y="180" text-anchor="middle">14.36</text>
+  <text class="s-mono" x="436" y="180" text-anchor="middle">13.57</text>
+  <text class="s-mono" x="488" y="180" text-anchor="middle">13.79</text>
+  <text class="s-mono" x="540" y="180" text-anchor="middle">13.78</text>
+  <text class="s-mono" x="592" y="180" text-anchor="middle">13.34</text>
+
+  <line x1="622" y1="175" x2="654" y2="175" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar-d)"/>
+  <rect class="s-box" x="658" y="145" width="220" height="60" rx="9" style="stroke:var(--accent);stroke-width:1.8"/>
+  <text class="s-key" x="768" y="170" text-anchor="middle">np.argmax(q[13]) = 2</text>
+  <text class="s-sm"  x="768" y="190" text-anchor="middle">動作 2 就是「往上走」</text>
+
+  <text class="s-sm" x="450" y="278" text-anchor="middle">整張表就 40 × 8 = 320 個數字，這是 A 學到的全部東西</text>
+</svg>
+<figcaption>圖 1.5 — 表中的數字是訓練 2000 回合後的真實值（<code>state 13</code> = 方向格 2 × 5 + 距離格 3，代表「B 在正上方、距離 3.0 ~ 6.0」）。八個值的大小順序完全對應各方向能靠近多少：往上最高、左右斜上次之、往下最低。</figcaption>
+</figure>
+
+<h2 id="sec-update">第 5 站：學習就是這一行</h2>
+<p>
+  整個 Q-Learning 演算法，就是下面這一行。看懂它，你就看懂這一章了。
+</p>
+<pre class="src" data-src="chase_2d/chase_2d.py:132">            q[s, a] += alpha * (r + gamma * np.max(q[s2]) - q[s, a])</pre>
+
+<p>這一行裡的每個縮寫，以及內文的希臘字母對應到程式裡的哪個變數：</p>
+<table class="tbl">
+  <thead><tr><th>符號</th><th>程式裡叫</th><th>意思</th></tr></thead>
+  <tbody>
+    <tr><td><code>s</code></td><td><code>s</code></td><td>state，現在的狀態編號（0 ~ 39）</td></tr>
+    <tr><td><code>a</code></td><td><code>a</code></td><td>action，這一步選的動作（0 ~ 7）</td></tr>
+    <tr><td><code>r</code></td><td><code>r</code></td><td>reward，做完這個動作實際拿到的獎勵</td></tr>
+    <tr><td><code>s2</code></td><td><code>s2</code></td><td><b>做完動作之後的新狀態</b>。名字沒有特別含意，就是「第二個 s」</td></tr>
+    <tr><td>α（alpha）</td><td><code>alpha</code></td><td>學習率，這裡固定 0.15</td></tr>
+    <tr><td>γ（gamma）</td><td><code>gamma</code></td><td>折扣因子，這裡固定 0.95</td></tr>
+    <tr><td>ε（epsilon）</td><td><code>eps</code></td><td>亂選動作的機率，會隨訓練衰減；輸出裡印的 <code>eps=0.83</code> 就是它</td></tr>
+  </tbody>
+</table>
+<figure class="fig">
+<svg viewBox="0 0 900 250" role="img" aria-label="Q-Learning 更新公式的逐項拆解，五個部分分別對應舊估計、學習率、當下獎勵、未來期望與誤差">
+  <text class="s-key" x="250" y="76">q[s, a]</text>
+  <text class="s-key" x="315" y="76">+=</text>
+  <text class="s-key" x="345" y="76">α</text>
+  <text class="s-key" x="365" y="76">* (</text>
+  <text class="s-key" x="400" y="76">r</text>
+  <text class="s-key" x="418" y="76">+</text>
+  <text class="s-key" x="440" y="76">γ * max(q[s2])</text>
+  <text class="s-key" x="560" y="76">-</text>
+  <text class="s-key" x="580" y="76">q[s, a] )</text>
+
+  <line x1="276" y1="88" x2="99"  y2="161" stroke="var(--line)" stroke-width="1"/>
+  <line x1="349" y1="88" x2="274" y2="161" stroke="var(--line)" stroke-width="1"/>
+  <line x1="404" y1="88" x2="449" y2="161" stroke="var(--line)" stroke-width="1"/>
+  <line x1="493" y1="88" x2="624" y2="161" stroke="var(--line)" stroke-width="1"/>
+  <line x1="614" y1="88" x2="799" y2="161" stroke="var(--line)" stroke-width="1"/>
+
+  <rect class="s-box" x="15"  y="163" width="168" height="58" rx="9"/>
+  <text class="s-key" x="99"  y="187" text-anchor="middle">q[s, a]</text>
+  <text class="s-sm"  x="99"  y="207" text-anchor="middle">舊的估計，要被修正</text>
+
+  <rect class="s-box" x="190" y="163" width="168" height="58" rx="9"/>
+  <text class="s-key" x="274" y="187" text-anchor="middle">alpha = 0.15</text>
+  <text class="s-sm"  x="274" y="207" text-anchor="middle">學習率：一次修正多少</text>
+
+  <rect class="s-box" x="365" y="163" width="168" height="58" rx="9" style="stroke:var(--bad);stroke-width:1.8"/>
+  <text class="s-key" x="449" y="187" text-anchor="middle">r</text>
+  <text class="s-sm"  x="449" y="207" text-anchor="middle">這一步實際拿到的獎勵</text>
+
+  <rect class="s-box" x="540" y="163" width="168" height="58" rx="9" style="stroke:var(--accent);stroke-width:1.8"/>
+  <text class="s-key" x="624" y="187" text-anchor="middle">0.95 * max(q[s2])</text>
+  <text class="s-sm"  x="624" y="207" text-anchor="middle">之後最好能再拿多少</text>
+
+  <rect class="s-box" x="715" y="163" width="168" height="58" rx="9"/>
+  <text class="s-key" x="799" y="187" text-anchor="middle">- q[s, a]</text>
+  <text class="s-sm"  x="799" y="207" text-anchor="middle">扣掉舊估計 = 猜錯多少</text>
+
+  <text class="s-sm" x="450" y="123" text-anchor="middle">括號裡整團叫做 TD error：我原本以為值這麼多，實際體驗完發現值那麼多，差多少</text>
+</svg>
+<figcaption>圖 1.6 — 這一行在做的事就是：算出「估計」與「現實」的差，然後往現實的方向挪一小步（如果你之後學到神經網路的梯度下降，會發現是同一個精神）。α = 0.15 表示每次只挪 15%，不會被單一次的運氣帶偏。</figcaption>
+</figure>
+
+<p>
+  最需要停下來想的是 <code>gamma * np.max(q[s2])</code> 這一項。
+  它讓「未來的價值」<b class="hl-key">從後面一格一格往前傳</b>：
+  某個狀態之所以有價值，是因為它能通往有價值的下一個狀態。
+</p>
+<p>
+  這解釋了為什麼訓練初期毫無起色、中期突然加速——一開始整張表都是 0，
+  只有真的抓到的那一格會拿到 +10；下一次經過它前面那一格時，
+  <code>max(q[s2])</code> 才第一次不是 0，價值就這樣一格一格往回滲透。
+  <code>gamma = 0.95</code> 是每往回傳一格打 95% 折，避免無限累加。
+</p>
+
+<h2 id="sec-explore">第 2 站：探索與利用</h2>
+<p>
+  假設 A 現在的 Q 表在某個狀態下顯示「往右」最好。它應該永遠往右嗎？
+  如果永遠照表走，那些從沒試過的動作永遠是 0 分，也就永遠沒機會被發現其實更好。
+  這就是 RL 的經典兩難：<b class="hl-key">exploration（探索）vs exploitation（利用）</b>。
+</p>
+<p>
+  最常見的解法叫 ε-greedy，簡單到只有一個 if：用機率 ε 亂選，其餘時候照表走。
+</p>
+<pre class="src" data-src="chase_2d/chase_2d.py:119-127"><span class="dim">        # epsilon：一開始幾乎全靠亂走探索，之後慢慢改成相信 Q 表</span>
+<span class="hi">        eps = max(0.05, 1.0 - ep / (episodes * 0.6))</span>
+        s = env.reset(rng)
+
+        for _ in range(MAX_STEPS):
+            if rng.random() &lt; eps:
+                a = int(rng.integers(N_ACTIONS))    # 探索
+            else:
+                a = int(np.argmax(q[s]))            # 利用</pre>
+<p>
+  ε 從 1.0 線性衰減，把 <code>episodes * 0.6 = 1200</code> 代進去可以算出它在第 <b class="hl-key">1140</b> 回合就觸到下限 0.05（<code>1 - 1140/1200 = 0.05</code>），之後保持不變。
+  你在訓練輸出裡看到的 <code>eps=0.83 / 0.67 / 0.50 ...</code> 就是這條線。
+  留 5% 不歸零，是為了讓 A 一直保有一點點試新東西的機會。
+</p>
+<p>
+  這一段不是可有可無的裝飾。把 ε 固定成 0（完全不探索）重跑，
+  分數從 15.65 掉到 <b class="hl-bad">3.96</b>，指令與輸出在下一節的對照組四。（那段腳本自己寫訓練迴圈，所以只會印最後一行，不像其他組有逐 200 回合的進度。）
+</p>
+
+<h2 id="sec-modules">模組分工</h2>
+<p>
+  整支程式只有一個 class 和三個函式，依賴方向是單向的，沒有循環：
+</p>
+<table class="tbl">
+  <thead><tr><th>單元</th><th>行號</th><th>職責</th><th>依賴誰</th></tr></thead>
+  <tbody>
+    <tr><td><code>ChaseEnv</code></td><td>55–104</td><td>世界的規則：位置、移動、獎勵、何時換目標。<b>完全不知道 Q 表的存在。</b></td><td>只依賴常數</td></tr>
+    <tr><td><code>train()</code></td><td>107–143</td><td>跑 2000 回合，每一步更新 Q 表，回傳 Q 表與每回合成績。</td><td><code>ChaseEnv</code></td></tr>
+    <tr><td><code>demo()</code></td><td>146–195</td><td>用訓練好的 Q 表跑，即時畫 matplotlib 動畫。<b>不做任何學習。</b></td><td><code>ChaseEnv</code></td></tr>
+    <tr><td><code>plot_history()</code></td><td>198–216</td><td>把成績畫成學習曲線存檔。</td><td>只依賴 matplotlib</td></tr>
+  </tbody>
+</table>
+<p>
+  值得留意的是<b class="hl-key">環境和學習器完全解耦</b>：<code>ChaseEnv</code> 裡沒有任何一行提到 Q 表、
+  α 或 ε。這不只是好看——它意味著你可以把 <code>train()</code> 換成 DQN，或換成 policy gradient（另一大類 RL 演算法，直接學「該做什麼」而不是先學「每個動作值多少」），
+  環境一行都不用改。gymnasium 這套介面之所以成為業界標準，就是為了這件事。
+</p>
+
+<h2 id="sec-verify">驗證：跑起來，然後親自證明每一句話</h2>
+<p>
+  這一節的每一個數字都是實際跑出來的，而且<b class="hl-ok">你可以跑出一模一樣的數字</b>——
+  因為隨機種子固定（<code>train(episodes=2000, seed=0)</code>），訓練過程完全可重現。
+</p>
+
+<h3>基準：完整版</h3>
+<pre class="shell">python chase_2d/chase_2d.py</pre>
+<p>
+  訓練約 4 秒，然後跳出 matplotlib 視窗播 3 回合動畫。這支程式只吃一個選用參數：
+  加上 <code>demo</code>（<code>python chase_2d/chase_2d.py demo</code>）會跳過訓練、
+  直接載入上次存下來的 <code>q_table.npy</code> 播動畫；不加就是「訓練完再播」。
+  完整的輸出如下：
+</p>
+<pre class="out">開始訓練：2000 episodes，每回合 300 步（30 秒）
+  episode   200   eps=0.83   最近 200 回合平均抓到 0.7 次     <span class="mark">(1)</span>
+  episode   400   eps=0.67   最近 200 回合平均抓到 2.1 次
+  episode   600   eps=0.50   最近 200 回合平均抓到 4.8 次
+  episode   800   eps=0.33   最近 200 回合平均抓到 7.8 次
+  episode  1000   eps=0.17   最近 200 回合平均抓到 11.2 次
+  episode  1200   eps=0.05   最近 200 回合平均抓到 14.5 次    <span class="mark">(2)</span>
+  episode  1400   eps=0.05   最近 200 回合平均抓到 15.2 次
+  episode  1600   eps=0.05   最近 200 回合平均抓到 15.6 次
+  episode  1800   eps=0.05   最近 200 回合平均抓到 15.8 次    <span class="mark">(3)</span>
+  episode  2000   eps=0.05   最近 200 回合平均抓到 15.7 次
+Q 表已存成 &lt;你的路徑&gt;/rl_playground/chase_2d/q_table.npy               <span class="mark">(4)</span>
+學習曲線已存成 &lt;你的路徑&gt;/rl_playground/chase_2d/training_result.png
+  demo episode 1：抓到 16 次                                      <span class="mark">(5)</span>
+  demo episode 2：抓到 21 次
+  demo episode 3：抓到 20 次</pre>
+<ol>
+  <li><span class="mark">(1)</span> 第一個 200 回合平均只有 0.7 次，而且此時 ε=0.83 代表八成以上的動作是亂選的。這一行證明<b>訓練初期跟亂走差不多</b>。</li>
+  <li><span class="mark">(2)</span> ε 在這裡觸底到 0.05，分數同時衝到 14.5。曲線最陡的一段正好落在 ε 衰減期，說明<b>「邊探索邊學」確實有在發生</b>，不是探索結束才開始學。</li>
+  <li><span class="mark">(3)</span> 之後在 15.2 ~ 15.8 之間震盪不再上升，代表<b>收斂了</b>。剩下的抖動來自每回合 A 和 B 的隨機初始位置，不是還沒學好。</li>
+  <li><span class="mark">(4)</span> 兩個產出檔都落在 <code>chase_2d/</code> 底下，而不是你執行指令的根目錄——這是 <code>chase_2d.py:50-52</code> 用 <code>__file__</code> 算路徑的效果。</li>
+  <li><span class="mark">(5)</span> demo 階段不再探索（ε 等於 0，見 <code>chase_2d.py:169</code>），分數比訓練期的 15.7 更高，因為少了那 5% 亂走。</li>
+</ol>
+
+<div class="note">
+  <b>如果你跑出來的數字不一樣</b>：先確認你沒有改過 <code>chase_2d.py</code>。
+  種子固定的情況下同一份程式碼應該逐位元相同——
+  <a href="#sec-verify">對照組那節的基準指令</a>會印出 <code>Q 表總和 = 5569.149869</code>，可以直接拿來比對。
+  真的不同的話，最可能是 numpy 版本差太多；這一章的所有數字是在
+  numpy 2.5.3 / matplotlib 3.11.1 / Python 3.14 / macOS 上跑的。
+  另外，教材是某個時間點的紀錄，如果 <code>chase_2d.py</code> 後來被改過，數字當然會變——
+  這時候該更新的是教材，不是你的環境。
+  另外，如果你在沒有螢幕的機器上跑（或設了 <code>MPLBACKEND=Agg</code>），demo 階段會多印幾行 <code>UserWarning: FigureCanvasAgg is non-interactive</code>——那是畫不出視窗的警告，不影響任何數字。
+</div>
+
+<h3>驗證 Q 表真的學到「往 B 的方向走」</h3>
+<p>
+  分數高不代表學對了東西。直接把 Q 表打開，看它在每個方向下挑哪個動作。
+  下面這段要先跑過上面的訓練（<code>q_table.npy</code> 才會存在）：
+</p>
+<pre class="shell">PYTHONPATH=chase_2d python - &lt;&lt;'PY'
+import numpy as np, chase_2d as C
+
+q = np.load("chase_2d/q_table.npy")
+names = ["右", "右上", "上", "左上", "左", "左下", "下", "右下"]
+print("Q 表大小:", q.shape, "= 40 個狀態 x 8 個動作")
+print()
+print("B 在這個方向 / 學到往這裡走")
+for angle_bin in range(C.N_ANGLE_BINS):
+    state = angle_bin * C.N_DIST_BINS + 3      # 距離取第 3 格（3.0 ~ 6.0）
+    best = int(np.argmax(q[state]))
+    ok = "OK" if best == angle_bin else "MISMATCH"
+    print(f"  {names[angle_bin]:&gt;2} / {names[best]:&gt;2}  {ok}")
+print()
+state = 2 * C.N_DIST_BINS + 3                  # B 在正上方、距離 3.0~6.0
+print(f"狀態 {state}（B 在正上方）的 8 個 Q 值:")
+for action in range(C.N_ACTIONS):
+    print(f"  往{names[action]:&gt;2}  Q = {q[state, action]:7.3f}")
+PY</pre>
+<pre class="out">Q 表大小: (40, 8) = 40 個狀態 x 8 個動作
+
+B 在這個方向 / 學到往這裡走
+   右 /  右  OK
+  右上 / 右上  OK
+   上 /  上  OK
+  左上 / 左上  OK
+   左 /  左  OK
+  左下 / 左下  OK
+   下 /  下  OK
+  右下 / 右下  OK
+
+狀態 13（B 在正上方）的 8 個 Q 值:
+  往 右  Q =  13.726
+  往右上  Q =  14.089
+  往 上  Q =  15.697
+  往左上  Q =  14.360
+  往 左  Q =  13.567
+  往左下  Q =  13.788
+  往 下  Q =  13.775
+  往右下  Q =  13.340</pre>
+<p>
+  八個方向全對。更漂亮的是下半段那八個 Q 值的<b class="hl-ok">大小順序</b>：
+  正確方向 15.697 最高，左右各偏 45 度的 14.089 / 14.360 次之，
+  完全相反的方向 13.340 最低。A 學到的不只是「哪個最好」，而是<b class="hl-key">每個動作各值多少</b>——
+  這正是 Q 值的定義。
+</p>
+<div class="note">
+  <b><code>.npy</code> 是什麼？</b>numpy 自己的二進位存檔格式，
+  用 <code>np.save(路徑, 陣列)</code> 存、<code>np.load(路徑)</code> 讀，
+  會完整保留形狀和資料型別。這裡存的就是那個 40×8 的 Q 表，檔案約 2.7 KB。
+</div>
+
+<h3>對照組：拆掉每個零件會怎樣</h3>
+<p>
+  下面是一個基準加四個對照組，<b class="hl-key">五個都有完整可貼可跑的指令</b>，
+  對應圖 1.7 的五根長條。全部跑完大約三分鐘（其中三組要各訓練 2000 回合）。
+</p>
+
+<p><b>基準：完整版。</b>跟主程式一樣的訓練，但印到小數第二位，並印出 Q 表總和供你比對是否逐位元相同：</p>
+<pre class="shell">PYTHONPATH=chase_2d python - &lt;&lt;'PY'
+import numpy as np, chase_2d as C
+q, history = C.train()
+print(f"完整版：最後 200 回合平均抓到 {np.mean(history[-200:]):.2f} 次")
+print(f"Q 表總和 = {q.sum():.6f}")
+PY</pre>
+<pre class="out">開始訓練：2000 episodes，每回合 300 步（30 秒）
+  episode   200   eps=0.83   最近 200 回合平均抓到 0.7 次
+  episode   400   eps=0.67   最近 200 回合平均抓到 2.1 次
+  episode   600   eps=0.50   最近 200 回合平均抓到 4.8 次
+  episode   800   eps=0.33   最近 200 回合平均抓到 7.8 次
+  episode  1000   eps=0.17   最近 200 回合平均抓到 11.2 次
+  episode  1200   eps=0.05   最近 200 回合平均抓到 14.5 次
+  episode  1400   eps=0.05   最近 200 回合平均抓到 15.2 次
+  episode  1600   eps=0.05   最近 200 回合平均抓到 15.6 次
+  episode  1800   eps=0.05   最近 200 回合平均抓到 15.8 次
+  episode  2000   eps=0.05   最近 200 回合平均抓到 15.7 次
+完整版：最後 200 回合平均抓到 15.65 次
+Q 表總和 = 5569.149869</pre>
+<p>
+  本章反覆引用的基準值 <b class="hl-ok">15.65</b> 就是這裡來的。
+  主程式最後一行印的 15.7 是同一個數字四捨五入到小數一位，兩者不是兩個量。
+</p>
+
+<p>
+  <b>對照組一：完全沒訓練。</b>一張全 0 的 Q 表拿去用會怎樣？
+  <code>np.argmax</code> 遇到全部相等時回傳第一個索引，所以它會<b>從頭到尾往右走</b>：
+</p>
+<pre class="shell">PYTHONPATH=chase_2d python - &lt;&lt;'PY'
+import numpy as np, chase_2d as C
+rng = np.random.default_rng(0)
+env = C.ChaseEnv()
+q = np.zeros((C.N_STATES, C.N_ACTIONS))    # 全 0：argmax 永遠回傳 0，等於一直往右走
+scores = []
+for ep in range(200):
+    s = env.reset(rng)
+    for _ in range(C.MAX_STEPS):
+        s, _, _, _ = env.step(int(np.argmax(q[s])), rng)
+    scores.append(env.catches)
+print(f"全 0 的 Q 表：200 回合平均抓到 {np.mean(scores):.2f} 次")
+PY</pre>
+<pre class="out">全 0 的 Q 表：200 回合平均抓到 0.04 次</pre>
+
+<p><b>對照組二：完全不學，隨機亂走。</b></p>
+
+<pre class="shell">PYTHONPATH=chase_2d python - &lt;&lt;'PY'
+import numpy as np, chase_2d as C
+rng = np.random.default_rng(0)
+env = C.ChaseEnv()
+scores = []
+for ep in range(200):
+    env.reset(rng)
+    for _ in range(C.MAX_STEPS):
+        env.step(int(rng.integers(C.N_ACTIONS)), rng)
+    scores.append(env.catches)
+print(f"隨機亂走 200 回合，平均抓到 {np.mean(scores):.2f} 次")
+PY</pre>
+<pre class="out">隨機亂走 200 回合，平均抓到 0.27 次</pre>
+<p>
+  比一直往右走的 0.04 好，因為亂走至少會經過地圖各處。這兩組都是「沒有學習」的下限。
+</p>
+<p><b>對照組三：有學，但只有抓到才給分（稀疏獎勵）。</b>把獎勵函式換掉再訓練一次：</p>
+
+<pre class="shell">PYTHONPATH=chase_2d python - &lt;&lt;'PY'
+import numpy as np, chase_2d as C
+
+original_step = C.ChaseEnv.step
+def sparse_step(self, action, rng):
+    s, _, done, caught = original_step(self, action, rng)
+    return s, (10.0 if caught else 0.0), done, caught   # 只有抓到才給分
+C.ChaseEnv.step = sparse_step
+
+q, history = C.train()
+print(f"稀疏獎勵：最後 200 回合平均抓到 {np.mean(history[-200:]):.2f} 次")
+PY</pre>
+<pre class="out">開始訓練：2000 episodes，每回合 300 步（30 秒）
+  episode   200   eps=0.83   最近 200 回合平均抓到 0.6 次
+  episode   400   eps=0.67   最近 200 回合平均抓到 1.9 次
+  episode   600   eps=0.50   最近 200 回合平均抓到 3.7 次
+  episode   800   eps=0.33   最近 200 回合平均抓到 5.5 次
+  episode  1000   eps=0.17   最近 200 回合平均抓到 8.7 次
+  episode  1200   eps=0.05   最近 200 回合平均抓到 11.2 次
+  episode  1400   eps=0.05   最近 200 回合平均抓到 13.6 次
+  episode  1600   eps=0.05   最近 200 回合平均抓到 12.8 次
+  episode  1800   eps=0.05   最近 200 回合平均抓到 13.4 次
+  episode  2000   eps=0.05   最近 200 回合平均抓到 12.4 次
+稀疏獎勵：最後 200 回合平均抓到 12.36 次</pre>
+<div class="note">
+  <b>上面那段在做什麼？</b>它用的手法叫 monkey patching：
+  先把原本的 <code>ChaseEnv.step</code> 存進 <code>original_step</code>，
+  再定義一個新函式包住它、只把回傳的獎勵換掉，最後把新函式指派回 class 上。
+  在 class 外面定義的普通函式，第一個參數寫 <code>self</code> 就能當 method 用。
+  好處是<b>不用改動 <code>chase_2d.py</code> 一個字</b>，實驗跑完關掉終端機就恢復原狀。
+</div>
+<p><b>對照組四：有學，但完全不探索（ε 固定為 0）。</b>這段自己寫訓練迴圈，所以只會印最後一行：</p>
+
+<pre class="shell">PYTHONPATH=chase_2d python - &lt;&lt;'PY'
+import numpy as np, chase_2d as C
+
+rng = np.random.default_rng(0)
+env = C.ChaseEnv()
+q = np.zeros((C.N_STATES, C.N_ACTIONS))
+history = []
+for ep in range(2000):
+    s = env.reset(rng)
+    for _ in range(C.MAX_STEPS):
+        a = int(np.argmax(q[s]))          # eps = 0：永遠照 Q 表走，完全不探索
+        s2, r, done, _ = env.step(a, rng)
+        q[s, a] += 0.15 * (r + 0.95 * np.max(q[s2]) - q[s, a])
+        s = s2
+    history.append(env.catches)
+print(f"完全不探索：最後 200 回合平均抓到 {np.mean(history[-200:]):.2f} 次")
+PY</pre>
+<pre class="out">完全不探索：最後 200 回合平均抓到 3.96 次</pre>
+
+<figure class="fig">
+<svg viewBox="0 0 900 280" role="img" aria-label="五種設定的平均抓到次數長條圖，完整版 15.65 次最高，未訓練 0.04 次最低">
+  <text class="s-lbl" x="580" y="38" text-anchor="middle" font-weight="700">每回合平均抓到幾次（越高越好）</text>
+  <line x1="300" y1="58" x2="300" y2="250" stroke="var(--line)" stroke-width="1.2"/>
+
+  <text class="s-sm" x="290" y="82"  text-anchor="end">沒訓練過的 Q 表（全 0）</text>
+  <rect x="300" y="70" width="2" height="20" fill="var(--muted)"/>
+  <text class="s-mono" x="312" y="85">0.04</text>
+
+  <text class="s-sm" x="290" y="117" text-anchor="end">完全不學，隨機亂走</text>
+  <rect x="300" y="105" width="9" height="20" fill="var(--muted)"/>
+  <text class="s-mono" x="319" y="120">0.27</text>
+
+  <text class="s-sm" x="290" y="152" text-anchor="end">有學，但完全不探索</text>
+  <rect x="300" y="140" width="131" height="20" fill="var(--bad)"/>
+  <text class="s-mono" x="441" y="155">3.96</text>
+
+  <text class="s-sm" x="290" y="187" text-anchor="end">只有抓到才給分（稀疏獎勵）</text>
+  <rect x="300" y="175" width="408" height="20" fill="var(--agent)"/>
+  <text class="s-mono" x="718" y="190">12.36</text>
+
+  <text class="s-sm" x="290" y="222" text-anchor="end">完整版（進度獎勵 ＋ ε-greedy）</text>
+  <rect x="300" y="210" width="516" height="20" fill="var(--ok)"/>
+  <text class="s-mono" x="826" y="225">15.65</text>
+
+  <text class="s-sm" x="580" y="268" text-anchor="middle">前兩列幾乎看不見，不是畫錯——它們真的只有 0.04 和 0.27</text>
+</svg>
+<figcaption>圖 1.7 — 「有沒有探索」造成的差距（3.96 → 15.65）遠大於「獎勵怎麼設計」（12.36 → 15.65）。在這個任務上，ε-greedy 是不可省的零件，reward shaping 只是加速器。</figcaption>
+</figure>
+
+<h2 id="sec-pitfalls">常見錯誤</h2>
+<p>這四格全部是這支程式在開發過程中真的踩到或量到的，不是教科書上的通則。</p>
+<div class="pits">
+  <div class="pit">
+    <h4>方向分格和動作方向錯開半格</h4>
+    <dl>
+      <dt>症狀</dt><dd>分數看起來正常（約 15 次），但把 Q 表打開，好幾個方向學到的動作偏一格。最早用 16 個方向格時實測是 <code>[0,1,1,2,3,2,3,4,4,5,6,6,6,6,7,0]</code>，期望值應該是 <code>[0,0,1,1,2,2,...]</code>。</dd>
+      <dt>後果</dt><dd>不會壞掉，但你沒辦法用 Q 表證明它學對了——分數變成唯一的證據，而分數會騙人。</dd>
+      <dt>正解</dt><dd class="fix">把方向格數設成跟動作數一樣（8），再加半格偏移讓每格中心對準一個動作。改完八個方向全對。</dd>
+    </dl>
+  </div>
+  <div class="pit">
+    <h4>產出檔寫到「當下工作目錄」</h4>
+    <dl>
+      <dt>症狀</dt><dd>程式原本在 repo 根目錄，搬進 <code>chase_2d/</code> 之後，<code>q_table.npy</code> 和 <code>training_result.png</code> 還是掉在根目錄。</dd>
+      <dt>後果</dt><dd>之後每多一個 example，產出檔就多一份混在根目錄，而且互相覆蓋——大家都叫 <code>q_table.npy</code>。</dd>
+      <dt>正解</dt><dd class="fix">用 <code>os.path.dirname(os.path.abspath(__file__))</code> 算出程式自己所在的目錄，產出檔一律放旁邊。</dd>
+    </dl>
+  </div>
+  <div class="pit">
+    <h4>以為稀疏獎勵一定學不動</h4>
+    <dl>
+      <dt>症狀</dt><dd>程式註解原本寫「進度獎勵比只在抓到時給分好學<b>很多</b>」，聽起來像稀疏獎勵會失敗。</dd>
+      <dt>後果</dt><dd>實測是 15.7 對 12.4——好，但沒有到「很多」。教材照抄一句沒量過的話，讀者做實驗就會發現被騙。</dd>
+      <dt>正解</dt><dd class="fix">跑對照組，把註解改成量測到的數字。凡是「A 比 B 好」的宣稱，都應該附一個可重跑的實驗。</dd>
+    </dl>
+  </div>
+  <div class="pit">
+    <h4>clone 下來直接跑 demo</h4>
+    <dl>
+      <dt>症狀</dt><dd><code>python chase_2d/chase_2d.py demo</code> 直接結束，說找不到 <code>q_table.npy</code>。</dd>
+      <dt>後果</dt><dd>新讀者第一個動作常常是「先看動畫」，然後以為 repo 壞了。</dd>
+      <dt>正解</dt><dd class="fix"><code>q_table.npy</code> 是訓練產物，被 <code>.gitignore</code> 排除，不進版控。先跑一次不帶參數的訓練即可。程式已經在 <code>chase_2d.py:221-222</code> 給出明確的錯誤訊息而不是 traceback。</dd>
+    </dl>
+  </div>
+</div>
+
+<h2 id="sec-next">小結與目前的限制</h2>
+<p>
+  你現在手上有一個完整的 RL 迴圈：離散化的狀態、有限的動作、一個獎勵函式、一張 Q 表、
+  一行更新公式、一個 ε-greedy 策略。這六件事在任何 RL 系統裡都會出現，
+  只是在大系統裡「Q 表」會被換成神經網路。
+</p>
+<p>而這一版有幾個明確的天花板，剛好是後面幾章的題目：</p>
+<ul>
+  <li><b class="hl-bad">B 不會跑。</b>它只是每 6 秒瞬間移動一次，中間完全靜止。真正的追逐問題裡目標會逃，而且會針對你的策略逃。</li>
+  <li><b class="hl-bad">狀態裡沒有牆。</b>A 不知道自己貼在地圖邊緣，所以被 <code>np.clip</code> 卡住時它「感覺不到」，只能靠 Q 值間接學到那個方向不划算。</li>
+  <li><b class="hl-bad">40 個狀態能用，是因為題目簡單。</b>加上速度、加上 B 的移動方向、加上障礙物，狀態數會指數爆炸，表格就塞不下了。這正是要換成神經網路（DQN）的動機——不是因為神經網路比較潮，是因為表格真的裝不下。</li>
+  <li><b class="hl-bad">沒有任何自動化測試。</b>目前所有驗證都是人工跑指令看輸出。</li>
+</ul>
+
+<h3>自我測驗</h3>
+<details class="quiz">
+  <summary>1. 為什麼狀態要用「B 相對於 A 的方向與距離」，而不是直接用 A 和 B 的座標？</summary>
+  <p>用座標的話，就算把 10×10 的地圖各切成 20 格，狀態數也是 20×20×20×20 = 16 萬個，
+  而且「B 在我右邊 2 單位」這件事在地圖左上角和右下角會被當成兩個完全不同的狀態，各自要重新學一次。
+  改用相對量之後，這些情況全部合併成同一個狀態，40 格就夠了。這種「把不該區分的情況合併掉」的設計，
+  在 RL 裡叫 state abstraction，通常比調參數更能決定成敗。</p>
+</details>
+<details class="quiz">
+  <summary>2. <code>q[s, a]</code> 存的是「這一步能拿多少分」還是別的？</summary>
+  <p>是「在狀態 s 做動作 a 之後，從現在到回合結束預期能累積多少分」，不是單步獎勵。
+  這就是為什麼更新公式裡有 <code>gamma * max(q[s2])</code> 這一項——它把下一個狀態的長期價值折算後加進來。
+  如果拿掉那一項，Q 值就退化成單步獎勵的平均，A 會變成只看眼前的貪心策略。</p>
+</details>
+<details class="quiz">
+  <summary>3. 如果把 ε 的下限從 0.05 改成 0，訓練完的分數會變高還是變低？</summary>
+  <p>訓練期的分數會小幅變高（少了 5% 亂走），但 Q 表的品質可能變差，因為某些狀態的某些動作再也不會被嘗試。
+  注意這跟本章「完全不探索」那個對照組不同：那個是<b>從頭到尾</b> ε=0，得到 3.96；
+  而讓 ε 從 1.0 衰減到 0，前期已經探索夠了，結果會接近 15.65。差別在探索發生在什麼時候，不只是有沒有。</p>
+</details>
+<details class="quiz">
+  <summary>4. 抓到 B 之後，程式為什麼不結束這一回合？</summary>
+  <p>因為我們要的是「持續追逐」的能力，不是「追到一次就好」。讓 B 立刻換位置、計時器歸零，
+  A 就必須學會抓到之後馬上重新定位下一個目標。副作用是「一回合抓到幾次」變成一個很直覺的分數，
+  而不是「花幾步抓到」這種還要另外解讀的指標。</p>
+</details>
+
+<nav class="pagenav bottom">
+  <span>← 沒有上一章</span>
+  <a href="index.html">回目錄</a>
+  <span class="spacer"></span>
+  <span>下一章準備中 →</span>
+</nav>
+
+</div>
+</body>
+</html>
